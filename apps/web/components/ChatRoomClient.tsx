@@ -12,6 +12,7 @@ const { socket, loading} = useSocket();
 const [chats, setChats] = useState(messages);
 const [currentMessage, setCurrentMessage] = useState("");
 
+
 useEffect(() => {
     if(socket && !loading){
 
@@ -22,24 +23,29 @@ useEffect(() => {
         socket.onmessage = (event) => {
             const parsedData = JSON.parse(event.data);
             if(parsedData.type === "chat"){
-setChats(c => [...c, {
-  id: parsedData.id,
-  roomId: parsedData.roomId,
-  userId: parsedData.userId,
-  message: parsedData.message.trim()
-}]);
+    setChats(c => [...c, {
+    id: parsedData.id,      
+    roomId: parsedData.roomId,
+    userId: parsedData.userId,
+    message: parsedData.message.trim()
+    
+        }]);
+
             } 
         }
 
     }
-    console.log("the chats right now is " + chats);
+    return () => {
+        socket?.close()
+    }
+
 }, [socket, loading,id])
 
 return <div>
 
-{chats.map((chat, index) => (
-  <p key={chat.id || index}>{chat.message.trim()}</p>
-))}
+        {chats.map((chat, index) => (
+         <p key={chat.id || index}>{chat.message.trim()}</p>
+        ))}
 
         <input type = "text" value = {currentMessage} onChange={e => {
             setCurrentMessage(e.target.value)
@@ -52,9 +58,12 @@ return <div>
                 "message":currentMessage
          } ))
 
+
          setCurrentMessage("");
 
         }}>Send Message</button>
+
+
 
         
 </div>

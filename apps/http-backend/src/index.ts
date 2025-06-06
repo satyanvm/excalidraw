@@ -3,10 +3,11 @@ import jwt from "jsonwebtoken";
 import { middleware } from "./UserMiddleware";
 import { CreateUserSchema } from "@repo/common/config"
 import { prismaClient} from "db/client";
+import cors from "cors";
 
 const app = express();
 app.use(express.json());
-
+app.use(cors())
 const JWT_SECRET = "123123";
 // add zod validation
 
