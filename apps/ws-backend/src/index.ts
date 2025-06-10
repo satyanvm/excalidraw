@@ -1,7 +1,6 @@
     import {WebSocketServer, WebSocket} from "ws";
     import jwt from "jsonwebtoken";
     const wss = new WebSocketServer({ port: 8080 });
-    // import {JWT_SECRET} from "@repo/backend-common/config";
     import { prismaClient } from "db/client";
     import { number } from "zod";
 
@@ -73,10 +72,8 @@
                     console.log("in the else block")
                 parsedData = JSON.parse(data); 
                 console.log("the parsedData is " + parsedData.userId);
-                // {type: "join-room", roomId: 1}
                 }
-        //@ts-ignore
-        // parsedData = JSON.parse(data)
+       
                         console.log("parsedData is  " , parsedData);
                 if(parsedData.type === "join_room"){
                        const  user = users.find(x => x.ws === ws); 
