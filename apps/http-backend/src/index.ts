@@ -19,7 +19,7 @@ app.post('/signup', async (req,res) => {
     const password = req.body.password;
     
     try{
-    const user =     await prismaClient.user.create({
+    const user = await prismaClient.user.create({
             data: {
                 email: email,
                 name: name,
@@ -30,6 +30,7 @@ app.post('/signup', async (req,res) => {
         userId :user.id
     })
     } catch(e){
+        console.log("the error is "+ e);
         res.json({
             message: "either the email already exists or the db is down"
         }) 
@@ -98,23 +99,25 @@ const slug = req.params.slug;
 
    const room = await prismaClient.room.findFirst({
     where: {
-      slug: slug
-    },
-    include: {
-      chats: true
+      slug: slug 
+    }, 
+    include: {    
+      chats: true   
     }
   });
-
+              
   const roomArray = room?.chats ?? [];
 
-  const messages: string[] = [];
+  const messages = [];
   for (const chat of roomArray) {
     try {
       if (typeof chat.message === 'string') {
       messages.push(chat.message);
+      console.log("inside if string and chat.message is " + chat.message)
     } else{
         //@ts-ignore
               messages.push(...chat.message);
+              console.log("i passed chat.message to messages.push which is " + chat.message)
     }
     } catch (e) {
         console.log("the error here is "+ e);
@@ -122,7 +125,10 @@ res.json({
     message: "some issue "
 })    }
   }
-  res.json(roomArray );
+  console.log(messages);
+  res.json({
+    messages
+  });
 
 })
 
@@ -133,7 +139,7 @@ app.post('/savemessage', (req,res) => {
     const room = prismaClient.room.findFirst({
         where:{
             slug: slug
-}
+} 
 })
 
     //logic to push chat to db

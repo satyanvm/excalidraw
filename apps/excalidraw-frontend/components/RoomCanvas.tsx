@@ -9,14 +9,14 @@ export function RoomCanvas({roomId}: {roomId: string}){
     const [socket, setSocket] = useState<WebSocket | null>(null);
 
     useEffect(()  => {
-        const ws = new WebSocket('ws://localhost:8080?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI5ZjZhZTg0ZS02NzlhLTQxNGQtYmUwNC00MTA3Zjg1NjhmOGEiLCJpYXQiOjE3NDkwNDU3MzF9.5GXTXz3buFRCstmSaTrSTPvZbcbX-T9VVPaWW8uNcfU')
+        const ws = new WebSocket('ws://localhost:8080?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIwODMwY2JkYS02Mjc4LTQ2NTMtYmNjOS05OWNjZTdlMzI5MjgiLCJpYXQiOjE3NDkzNzk5ODN9.kz2cG_1jTXXReBjaMSOYwhMoZOut8ku0CCYh8UK0k74')
 
         ws.onopen = () => {
             setSocket(ws)
             ws.send(JSON.stringify({
                 type: "join_room",
-                roomId
-            })) 
+                roomId: Number(roomId)
+            }))  
         }
     }, [])
 
@@ -30,3 +30,4 @@ export function RoomCanvas({roomId}: {roomId: string}){
         <Canvas roomId = {roomId} socket = {socket}></Canvas>
       </div>
  }
+    

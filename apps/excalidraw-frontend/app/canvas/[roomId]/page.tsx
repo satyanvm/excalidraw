@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 
 export default async function CanvasPage({params}: {
     params: {
-        roomId: string
+        roomId: string 
     } 
 }){
     const roomId =   (await params).roomId;
@@ -12,3 +12,4 @@ export default async function CanvasPage({params}: {
 
    return <RoomCanvas roomId = {roomId}></RoomCanvas>
 }
+ 
