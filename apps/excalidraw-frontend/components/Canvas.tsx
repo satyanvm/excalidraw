@@ -5,10 +5,10 @@ import { IconButton } from "./Icons";
 import { Circle, Pencil, RectangleHorizontalIcon } from "lucide-react";
 
 type Shape = "circle" | "rect" | "pencil";
-
+ 
 let activated = "";
 
-export function Canvas({
+export function Canvas({  
     roomId,               
     socket     
 }: { 

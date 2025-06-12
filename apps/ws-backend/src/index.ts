@@ -97,10 +97,12 @@
                 try{    
          -   console.log("after chat and parsedData.roomId is " + parsedData.roomId);
                 const roomId = parsedData.roomId;
-                console.log("the roomid is " + roomId);  
-                const message = parsedData.message;
+                console.log("the roomid is " + roomId);   
+                const message = parsedData.message; 
                 const themessage = JSON.stringify(JSON.stringify(message));
                 
+                console.log("the themessage which is being send to db is " + themessage);
+
                 console.log("the userid from chatcreate is " + userId);
                 console.log("the message which is being sent is " + themessage); 
                 await prismaClient.chat.create({  

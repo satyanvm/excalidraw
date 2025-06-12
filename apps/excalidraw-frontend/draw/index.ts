@@ -98,12 +98,14 @@ export async function initDraw(canvas: any, roomId: string, socket: WebSocket) {
           const width = e.clientX - startX;
           const height = e.clientY - startY;
           const radius = Math.max(width,height)/2; 
-
+          const centerX = startX + radius ;
+          const centerY = startY + radius ;
+          
           clearCanvas(existingShapes, canvas, ctx);
-
+      
           ctx.strokeStyle = "rgba(225,255,255)";
           ctx.beginPath();
-          ctx.arc(startX, startY, radius, 0, Math.PI * 2);
+          ctx.arc(centerX, centerY, Math.abs(radius), 0, Math.PI * 2);
           ctx.stroke();
       }
     
@@ -124,23 +126,32 @@ function clearCanvas(
   existingShapes.map((shapestr: any) => {
 
     if (typeof shapestr === 'object'){
-        if (shapestr.type === "rect") {
+        if (shapestr.type === "rect") { 
           ctx.strokeStyle = "rgba(255,255,255)";
           ctx.strokeRect(shapestr.x, shapestr.y, shapestr.width, shapestr.height);
-}
+}    
      else if(shapestr.type === "circle"){
 
           ctx.strokeStyle = "rgba(255,255,255)";
           ctx.beginPath();
-          ctx.arc(shapestr.centerX, shapestr.centerY, shapestr.radius, 0, Math.PI * 2);
-          ctx.stroke();
+        
+          ctx.arc(shapestr.centerX, shapestr.centerY, Math.abs(shapestr.radius), 0, Math.PI * 2);
+          ctx.stroke();     
      }
-
+      
     }    else{
-      const shape = JSON.parse(shapestr)
+      const shape = JSON.parse(JSON.parse(JSON.parse(shapestr)))
+      console.log("typeof shape is", typeof shape);
+      console.log("shape is ", shape);
        if (shape.type === "rect"){
         ctx.strokeStyle = "rgba(255,255,255)";
         ctx.strokeRect(shape.x, shape.y, shape.width, shape.height)
+       } else{
+          ctx.strokeStyle = "rgba(255,255,255)";
+          ctx.beginPath();
+          
+          ctx.arc(shape.centerX, shape.centerY, Math.abs(shape.radius), 0, Math.PI * 2);
+          ctx.stroke();
        }
     }
  
