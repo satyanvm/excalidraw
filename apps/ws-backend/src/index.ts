@@ -56,7 +56,7 @@
             return;
         } 
 
-        if(!decoded || !decoded.userId){
+        if(!decoded || !decoded.userId) {
             console.log("problem here")
             ws.close();
             return;
@@ -69,12 +69,12 @@
                 console.log("in !string if");
                     parsedData = JSON.parse(data.toString()); 
                 } else {
-                    console.log("in the else block")
-                parsedData = JSON.parse(data); 
+                    console.log("in the else block")     
+                parsedData = JSON.parse(data);  
                 console.log("the parsedData is " + parsedData.userId);
-                }
+                } 
        
-                        console.log("parsedData is  " , parsedData);
+                console.log("parsedData is  " , parsedData);
                 if(parsedData.type === "join_room"){
                        const  user = users.find(x => x.ws === ws); 
                 user?.rooms.push(parsedData.roomId);
@@ -102,7 +102,8 @@
                 const themessage = JSON.stringify(JSON.stringify(message));
                 
                 console.log("the userid from chatcreate is " + userId);
-                await prismaClient.chat.create({
+                console.log("the message which is being sent is " + themessage); 
+                await prismaClient.chat.create({  
                     data:{          
                         roomId: roomId,    
                         message: themessage,
