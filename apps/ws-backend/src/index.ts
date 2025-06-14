@@ -115,7 +115,7 @@
                 users.forEach(user => {  
                     if(user.rooms.includes(roomId)){
                         user.ws.send(JSON.stringify({
-                            type: "chat",
+                            type: "chat",   
                             message: message,
                             roomId
                         })) 

@@ -14,11 +14,11 @@ export function Canvas({
 }: { 
     roomId: string, 
     socket: WebSocket
-}){ 
+}){     
         const [theshape, setTheshape ] = useState("rect")
         const [selectedTool, setSelectedTool] = useState<Shape>("circle")
-
-        const canvasRef = useRef<HTMLCanvasElement>(null);
+        // const [shouldSend,setShouldSend] = useState(true);
+            const canvasRef = useRef<HTMLCanvasElement>(null);
             console.log("before use effect of canvasRef.current");
         useEffect(() => {
 
@@ -41,7 +41,7 @@ export function Canvas({
 
 } 
 
-function TopBar({
+export function TopBar({
     selectedTool,
     setSelectedTool
 }: {
@@ -61,8 +61,10 @@ function TopBar({
     window.selectedTool = selectedTool
     return <div style = {{ 
         position: "fixed",
+        overflow: "hidden",
         top:10,
-        left:10
+        left:10,
+        backgroundColor: "gray" 
     }}>
         <IconButton selectedTool={selectedTool} setSelectedTool={setSelectedTool} icon={<RectangleHorizontalIcon/>} onClick={() => { 
             setSelectedTool("rect")
@@ -76,8 +78,11 @@ function TopBar({
         }} activated={activated === "circle"}/> 
         <IconButton selectedTool={selectedTool} setSelectedTool={setSelectedTool} icon={<Pencil/>} onClick={() => {
             setSelectedTool("pencil")
+            //@ts-ignore 
+            window.selectedTool = "pencil" 
+            console.log("i have done window.selectedTool to be pencil")
             //@ts-ignore
-            window.selectedTool = "pencil"
+            console.log(window.selectedTool)
         }} activated={activated  === "pencil"}/>  
     </div>
 }
