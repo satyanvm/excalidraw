@@ -17,20 +17,20 @@ export async function initDraw(canvas: any, roomId: string, socket: WebSocket) {
     return;
   } 
 
-  socket.onmessage = (event) => { 
+  socket.onmessage = (event) => {   
   
     const hehe = JSON.parse(event.data);
 
     const themessage = JSON.parse(JSON.parse(JSON.parse(event.data).message));
 
     if (hehe.type == "chat") {
-      console.log("inside message.type = chat");
+      console.log("inside message.type = chat"); 
       existingShapes.push(themessage);
       clearCanvas(existingShapes, canvas, ctx);
     } 
   };
 
-  clearCanvas(existingShapes, canvas, ctx);
+  clearCanvas(existingShapes, canvas, ctx); 
 
   let clicked = false;
   let startX = 0;
@@ -86,9 +86,9 @@ export async function initDraw(canvas: any, roomId: string, socket: WebSocket) {
 
           //@ts-ignore
       } else if(window.selectedTool === "pencil"){ 
-        ctx.lineWidth = 1;              // Thin line like a pencil
-        ctx.strokeStyle = 'rgba(255, 255, 255)'; // Low opacity for soft pencil look
-        ctx.lineCap = 'round';          // Round edges for smoother strokes
+        ctx.lineWidth = 1;              
+        ctx.strokeStyle = 'rgba(255, 255, 255)';
+        ctx.lineCap = 'round';          
         ctx.lineJoin = 'round';  
 
         const point = [e.offsetX, e.offsetY]
@@ -143,17 +143,21 @@ export async function initDraw(canvas: any, roomId: string, socket: WebSocket) {
           startX: startX,
           startY: startY,
           clientX: clientX,
-          clientY: clientY,
+          clientY: clientY,           
           //@ts-ignore
           BufferStroke: BufferStroke 
-        }
+        } 
       }
 
 
+
+      
+
     existingShapes.push(shape);
+    
       console.log("the shape being pushed here is " , shape)
     socket.send(
-      JSON.stringify({ 
+      JSON.stringify({       
         type: "chat", 
         roomId: Number(roomId),
         message: JSON.stringify(JSON.stringify(shape)),
@@ -208,7 +212,7 @@ function clearCanvas(
         }    else{   
       const shape = JSON.parse(JSON.parse(JSON.parse(shapestr)))
       console.log("typeof shape is", typeof shape);          
-      console.log("shape is ", shape);
+      console.log("shape is ", shape);      
        if (shape.type === "rect"){
         ctx.strokeStyle = "rgba(255,255,255)";
         ctx.strokeRect(shape.x, shape.y, shape.width, shape.height)
@@ -219,9 +223,9 @@ function clearCanvas(
           ctx.arc(shape.centerX, shape.centerY, Math.abs(shape.radius), 0, Math.PI * 2);
           ctx.stroke();
        } else if(shape.type === "pencil"){
-        ctx.lineWidth = 1;              // Thin line like a pencil
-        ctx.strokeStyle = 'rgba(255,255,255)'; // Low opacity for soft pencil look
-        ctx.lineCap = 'round';          // Round edges for smoother strokes
+        ctx.lineWidth = 1;              
+        ctx.strokeStyle = 'rgba(255,255,255)'; 
+        ctx.lineCap = 'round';          
         ctx.lineJoin = 'round';   
 
           if (shape.BufferStroke.length < 2) return;
@@ -250,7 +254,7 @@ async function getExistingShapes(roomId: string) {
   const shapes: any = messages
     .map((str) => {
       try {
-        return JSON.parse(str);
+        return JSON.parse(str);       
       } catch (err) {
         console.error("Failed to parse message:", str, err);
         return null;

@@ -82,7 +82,7 @@ app.post('/room', middleware, async (req,res) => {
             slug: slug,
             adminId: userId
           }
-    });
+    }); 
 
         res.json({
         roomId: room.id

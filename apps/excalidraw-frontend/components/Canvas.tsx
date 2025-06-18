@@ -1,8 +1,8 @@
 import { initDraw } from "@/draw";
-import { Button } from "@repo/ui/button";
 import { useEffect, useRef, useState } from "react";
 import { IconButton } from "./Icons";
 import { Circle, Pencil, RectangleHorizontalIcon } from "lucide-react";
+import { Game } from "@/draw/Game";
 
 type Shape = "circle" | "rect" | "pencil";
  
@@ -12,34 +12,43 @@ export function Canvas({
     roomId,               
     socket     
 }: { 
-    roomId: string, 
+    roomId: Number, 
     socket: WebSocket
-}){     
-        const [theshape, setTheshape ] = useState("rect")
-        const [selectedTool, setSelectedTool] = useState<Shape>("circle")
-        // const [shouldSend,setShouldSend] = useState(true);
-            const canvasRef = useRef<HTMLCanvasElement>(null);
-            console.log("before use effect of canvasRef.current");
+}){
+        const canvasRef = useRef<HTMLCanvasElement>(null);
+        const [selectedTool, setSelectedTool] = useState<Shape>("circle") 
+        const [game, setGame] = useState<Game>();
+
+        useEffect(() => {
+            console.log("inside useEffect")
+            if(!game){
+                console.log("no game object available here")
+                return;
+            }
+        game.setTool(selectedTool);
+            }, [selectedTool, game]);
+
         useEffect(() => {
 
         if(canvasRef.current){
-            console.log("inside of canvasRef.current");
-         initDraw(canvasRef.current, roomId, socket)    
+                
+            const g = new Game(canvasRef.current, roomId, socket)
+            setGame(g);
+
+            return () => {
+                g.destroy()
+            }
+  
         }   
 
     }, [canvasRef]); 
 
-    return <div className="flex ">  
-        <div>
- <canvas ref = {canvasRef} width = {1300} height = {1300}></canvas>
-</div>
-<div className="bg-whtie">
-<TopBar selectedTool = {selectedTool} setSelectedTool = {setSelectedTool}></TopBar>
-
-</div>
+    return <div className="h-screen overflow-hidden bg-white">
+        <canvas ref={canvasRef}></canvas>
+        <TopBar setSelectedTool={setSelectedTool} selectedTool={selectedTool} />
     </div>
 
-} 
+}   
 
 export function TopBar({
     selectedTool,
@@ -48,17 +57,16 @@ export function TopBar({
     selectedTool: Shape,
     setSelectedTool: (tool: Shape) => void
 }) {
-    if(selectedTool == "circle"){
+    if(selectedTool === "circle"){
         activated = "circle"
-    } else if(selectedTool == "rect"){
+    } else if(selectedTool === "rect"){
         activated = "rect"
-    } else if(selectedTool == "pencil"){
+    } else if(selectedTool === "pencil"){
         activated = "pencil"
     } else{ 
         console.log("selectedTool is none of those")
     } 
-    //@ts-ignore
-    window.selectedTool = selectedTool
+ 
     return <div style = {{ 
         position: "fixed",
         overflow: "hidden",
@@ -68,21 +76,16 @@ export function TopBar({
     }}>
         <IconButton selectedTool={selectedTool} setSelectedTool={setSelectedTool} icon={<RectangleHorizontalIcon/>} onClick={() => { 
             setSelectedTool("rect")
-            //@ts-ignore
-            window.selectedTool = "rect"
+          
         }} activated={activated === "rect"}/> 
         <IconButton selectedTool={selectedTool} setSelectedTool={setSelectedTool} icon={<Circle/>} onClick={() => {
             setSelectedTool("circle")
-            //@ts-ignore
-            window.selectedTool = "circle"
+   
         }} activated={activated === "circle"}/> 
         <IconButton selectedTool={selectedTool} setSelectedTool={setSelectedTool} icon={<Pencil/>} onClick={() => {
             setSelectedTool("pencil")
-            //@ts-ignore 
-            window.selectedTool = "pencil" 
+       
             console.log("i have done window.selectedTool to be pencil")
-            //@ts-ignore
-            console.log(window.selectedTool)
-        }} activated={activated  === "pencil"}/>  
+                   }} activated={activated  === "pencil"}/>  
     </div>
 }
