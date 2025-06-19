@@ -1,10 +1,10 @@
 import { initDraw } from "@/draw";
 import { useEffect, useRef, useState } from "react";
 import { IconButton } from "./Icons";
-import { Circle, Pencil, RectangleHorizontalIcon } from "lucide-react";
+import { Circle, Pencil, RectangleHorizontalIcon, Hand } from "lucide-react";
 import { Game } from "@/draw/Game";
 
-type Shape = "circle" | "rect" | "pencil";
+type Shape = "circle" | "rect" | "pencil" | "hand";
  
 let activated = "";
 
@@ -51,19 +51,22 @@ export function Canvas({
 }   
 
 export function TopBar({
-    selectedTool,
+    selectedTool, 
     setSelectedTool
 }: {
     selectedTool: Shape,
     setSelectedTool: (tool: Shape) => void
-}) {
+}) { 
     if(selectedTool === "circle"){
         activated = "circle"
     } else if(selectedTool === "rect"){
         activated = "rect"
     } else if(selectedTool === "pencil"){
         activated = "pencil"
-    } else{ 
+    } else if (selectedTool === "hand"){
+     activated = "hand"   
+    }
+        else{ 
         console.log("selectedTool is none of those")
     } 
  
@@ -82,10 +85,16 @@ export function TopBar({
             setSelectedTool("circle")
    
         }} activated={activated === "circle"}/> 
+
         <IconButton selectedTool={selectedTool} setSelectedTool={setSelectedTool} icon={<Pencil/>} onClick={() => {
             setSelectedTool("pencil")
        
             console.log("i have done window.selectedTool to be pencil")
                    }} activated={activated  === "pencil"}/>  
-    </div>
-}
+
+                    <IconButton selectedTool={selectedTool} setSelectedTool={setSelectedTool} icon={<Hand/>} onClick={() => {
+                        console.log("selected hand")
+            setSelectedTool("hand")
+                   }} activated={activated  === "hand"}/>  
+    </div>      
+}    
