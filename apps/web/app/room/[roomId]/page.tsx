@@ -19,5 +19,5 @@ export default async function ChatRoomPage({ params }: PageProps) {
     return <div>Invalid room ID</div>;
   }
 
-  return <ChatRoom id={theroomId} />;
+return <ChatRoom id={theroomId} />;
 }

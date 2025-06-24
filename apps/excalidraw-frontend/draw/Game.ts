@@ -43,6 +43,10 @@ export class Game {
     private isPan: boolean = false;
       private lastMouseX: number = 0;
   private lastMouseY: number = 0;
+  private allRectX: any[];
+  private allRect: any[];
+  private allShapeXRect: any[];
+  private allShapeYRect: any [];
     socket: WebSocket;     
 
 
@@ -56,11 +60,18 @@ export class Game {
         this.clicked = false;
         this.canvas.width = document.body.clientWidth
         this.canvas.height = document.body.clientHeight
+        this.allRectX = [];
+        this.allRect = [];
+        this.allShapeXRect = [];
+        this.allShapeYRect = [];
         this.init();
         this.initHandlers();    
         this.initMouseHandlers();
+        this.checkX(0,0);
     } 
-     
+    
+  
+
     destroy() {
         this.canvas.removeEventListener("mousedown", this.mouseDownHandler)
           
@@ -78,16 +89,30 @@ export class Game {
     async init() {
         this.existingShapes = await getExistingShapes(this.roomId);     
         this.clearCanvas();     
-    }                                    
+    }    
+    
+         checkX(x: number, y: number) {
+            
+            console.log("this.allShapeYRect is " + this.allShapeYRect)
+            if (this.allShapeXRect.includes(x) && this.allShapeYRect.includes(y)) {
+        console.log("Triggered at X =", x);
+        this.canvas.style.cursor = "nwse-resize";
+        setTimeout(() => {
+            this.canvas.style.cursor = "default";
+        }, 1000); 
+        }
+        }
 
     initHandlers() {
         this.socket.onmessage = (event) => {         
             const themessage = JSON.parse(event.data); 
 
             const message = JSON.parse(JSON.parse(JSON.parse(event.data).message));
+            
+            console.log("before chat message.type");
 
             if (themessage.type == "chat")  {  
-             
+             console.log("came inside chat of socket.onmessage")
                 this.existingShapes.push(message)
                 this.clearCanvas();     
 
@@ -97,17 +122,6 @@ export class Game {
     }
 
     forPanClearCanvas(){
-        
-    //     this.ctx.save();
-    //   this.ctx.setTransform(this.scale, 0, 0, this.scale, this.panX, this.panY);
-    // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    // this.ctx.fillStyle = "rgba(0, 0, 0)";
-    // this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    // this.ctx.restore();
-    
-    //     this.ctx.save();
-    // this.ctx.translate(this.panX, this.panY);
-    // this.ctx.scale(this.scale, this.scale);
 
 
       this.ctx.setTransform(this.scale, 0, 0, this.scale, this.panX, this.panY);
@@ -121,10 +135,8 @@ export class Game {
             
             this.ctx.fillStyle = "rgba(0, 0, 0)"
         this.ctx.fillRect(  
-            // Adjusts the offset of the canvas
             -this.panX / this.scale, 
             -this.panY / this.scale, 
-            // Adjusts the scale of the canvas
             this.canvas.width/ this.scale, 
             this.canvas.height / this.scale);
 
@@ -141,8 +153,8 @@ export class Game {
                 this.ctx.closePath();                
             } else if(shape.type === "pencil"){
                     this.ctx.lineWidth = 1;              
-                    this.ctx.strokeStyle = 'rgba(255, 255, 255)'; // Low opacity for soft pencil look
-                    this.ctx.lineCap = 'round';          // Round edges for smoother strokes
+                    this.ctx.strokeStyle = 'rgba(255, 255, 255)';
+                    this.ctx.lineCap = 'round';          
                     this.ctx.lineJoin = 'round'; 
 
           if (shape.BufferStroke.length < 2) return;
@@ -209,10 +221,8 @@ export class Game {
             
             this.ctx.fillStyle = "rgba(0, 0, 0)"
         this.ctx.fillRect(  
-            // Adjusts the offset of the canvas
             -this.panX / this.scale, 
             -this.panY / this.scale, 
-            // Adjusts the scale of the canvas
             this.canvas.width/ this.scale, 
             this.canvas.height / this.scale);
 
@@ -228,8 +238,8 @@ export class Game {
                 this.ctx.closePath();                
             } else if(shape.type === "pencil"){
                     this.ctx.lineWidth = 1;              
-                    this.ctx.strokeStyle = 'rgba(255, 255, 255)'; // Low opacity for soft pencil look
-                    this.ctx.lineCap = 'round';          // Round edges for smoother strokes
+                    this.ctx.strokeStyle = 'rgba(255, 255, 255)';
+                    this.ctx.lineCap = 'round';          
                     this.ctx.lineJoin = 'round'; 
 
           if (shape.BufferStroke.length < 2) return;
@@ -292,7 +302,7 @@ export class Game {
         this.lastY = e.offsetY   
         this.BufferStroke = []   
         this.BufferStroke.push([(this.lastX - this.panX)/ this.scale, (this.lastY - this.panY)/this.scale]) 
-
+        
     }
     mouseUpHandler = (e: any) => {
 
@@ -327,8 +337,8 @@ export class Game {
             }
         } else if(selectedTool === "pencil"){
 
-            shape = {
-                type: "pencil",
+            shape = { 
+                type: "pencil", 
                 startX: (this.startX - this.panX) / this.scale,
                 startY: (this.startY - this.panY) / this.scale,
                 clientX: (e.clientX - this.panX) / this.scale,
@@ -357,35 +367,38 @@ export class Game {
 
       console.log("right now this.isPanning is " + this.isPanning)
 
-
         const mouseX = e.clientX - this.canvas.offsetLeft; 
-        const mouseY = e.clientY - this.canvas.offsetTop;
+        const mouseY = e.clientY - this.canvas.offsetTop;   
+        const canvasMouseX = (mouseX - this.panX) / this.scale;
+        const canvasMouseY = (mouseY - this.panY) / this.scale;
+        
+        console.log("this.existingShapes is " + this.existingShapes)
 
-       if(this.clicked){  
+     
+        this.existingShapes.map((shape: any) => {
+            if(typeof shape !== "object"){
+            const theshape = JSON.parse(JSON.parse(JSON.parse((shape))))
+            console.log("typeof theshape is " + typeof theshape)
+            console.log("theshape.type is " + theshape.type)
+            if(theshape.type === "rect") {
+            this.allRect.push(theshape)
+            console.log("theshape from if statement is " , theshape)
+            }
+    }})
+        console.log("this.allRect is " , this.allRect) 
+
+        this.allRect.map((x) => { 
+            this.allShapeXRect.push(x.x)
+            console.log("pushing x.y which is "+ x.y);
+            this.allShapeYRect.push(x.y)
+            console.log("this.allShapeYRect from .map push is ", this.allShapeYRect)
+        }) 
+        console.log("before checkx function")
+        this.checkX(canvasMouseX, canvasMouseY);
+
+        if(this.clicked){  
         if(this.isPanning){
        if(this.selectedTool === "hand"){   
-
-        //     e.preventDefault()   
-
-        // const scaleAmount = -e.deltaY / 500;
-
-        // const mouseX = e.clientX - this.canvas.offsetLeft; 
-        // const mouseY = e.clientY - this.canvas.offsetTop;
-
-        // const canvasMouseX = (mouseX - this.panX) / this.scale;
-        // const canvasMouseY = (mouseY - this.panY) / this.scale;
-
-        // this.panX -= (canvasMouseX * this.scale - canvasMouseX * this.scale);
-        // this.panY -= (canvasMouseY * this.scale - canvasMouseY * this.scale);
-
-
-    //       const rect = this.canvas.getBoundingClientRect();
-    // const mouseX = e.clientX - rect.left;
-    // const mouseY = e.clientY - rect.top;
-
-    //     const adjustedX = (mouseX - this.panX) / this.scale;
-
-    // const adjustedY = (mouseY - this.panY) / this.scale;
 
       const deltaX = mouseX - this.lastMouseX;
       const deltaY = mouseY - this.lastMouseY;
@@ -439,9 +452,7 @@ export class Game {
         //@ts-ignore 
         this.BufferStroke.push(point)
 
-        this.ctx.beginPath() 
-        // this.ctx.moveTo(this.lastX, this.lastY) 
-        // this.ctx.lineTo(e.offsetX, e.offsetY); 
+        this.ctx.beginPath()  
 
                         this.ctx.moveTo(
                     (this.lastX - this.panX) / this.scale,
@@ -472,7 +483,6 @@ mouseWheelHandler = (e: any) => {
 
         const mouseX = e.clientX - this.canvas.offsetLeft; 
         const mouseY = e.clientY - this.canvas.offsetTop;
-        // Position of cursor on canvas
         const canvasMouseX = (mouseX - this.panX) / this.scale;
         const canvasMouseY = (mouseY - this.panY) / this.scale;
 
@@ -520,53 +530,3 @@ mouseWheelHandler = (e: any) => {
 
     }
 }
-
-    //  zoomKeyHandler = (e) => {
-
-    // if (!e.ctrlKey) return;
-
-    // let scaleAmount = 0;
-
-    // if (e.key === "=" || e.key === "+") {
-    //     scaleAmount = 0.1; // Zoom in
-    // } else if (e.key === "-") {
-    //     scaleAmount = -0.1; // Zoom out
-    // } else {
-    //     return;
-    // }
-
-    //     e.preventDefault();
-
-    //     // const scaleAmount = -e.deltaY / 500;          
-    //     const newScale = this.scale * (1 + scaleAmount); 
-
-    //     const mouseX = e.clientX - this.canvas.offsetLeft;
-    //     const mouseY = e.clientY - this.canvas.offsetTop;
-
-    //     // Position of cursor on canvas                 
-    //     const canvasMouseX = (mouseX - this.panX) / this.scale;   
-    //     const canvasMouseY = (mouseY - this.panY) / this.scale;
-
-    //     this.panX -= (canvasMouseX * newScale - canvasMouseX * this.scale);
-    //     this.panY -= (canvasMouseY * newScale - canvasMouseY * this.scale);
-
-    //     this.scale = newScale;
-
-    //     this.clearCanvas();
-
-    // };    
-    
-    
-
-
-    // initMouseHandlers() {
-    //     this.canvas.addEventListener("mousedown", this.mouseDownHandler)
-
-    //     this.canvas.addEventListener("mouseup", this.mouseUpHandler)
-
-    //     // this.canvas.addEventListener("mousemove", this.zoomKeyHandler)    
-
-    //     // this.canvas.addEventListener("wheel", this.mouseWheelHandler)
-
-    //     this.canvas.addEventListener("wheel", this.mouseWheelHandler)
-    // }

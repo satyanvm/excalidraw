@@ -4,7 +4,7 @@ import { middleware } from "./UserMiddleware";
 import { CreateUserSchema } from "@repo/common/config"
 import { prismaClient} from "db/client";
 import cors from "cors";
-
+     
 const app = express();
 app.use(express.json());
 app.use(cors())
@@ -44,7 +44,7 @@ app.post('/signin', async (req,res) => {
     const password = req.body.password;
     const email = req.body.email;
 
-    try{
+    try{ 
         const user = await prismaClient.user.findFirst({
         where:{
             email: email
@@ -80,7 +80,7 @@ app.post('/room', middleware, async (req,res) => {
     const room = await prismaClient.room.create({
         data:{
             slug: slug,
-            adminId: userId
+            adminId: userId 
           }
     }); 
 

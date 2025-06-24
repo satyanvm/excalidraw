@@ -14,7 +14,7 @@
     const users: User[] = []
 
     function checkUser(token: string): string | null{
-        
+
         const decoded = jwt.verify(token, JWT_SECRET);
         if(typeof decoded == "string"){
             return null;
@@ -73,7 +73,7 @@
                 parsedData = JSON.parse(data);  
                 console.log("the parsedData is " + parsedData.userId);
                 } 
-       
+                    
                 console.log("parsedData is  " , parsedData);
                 if(parsedData.type === "join_room"){
                        const  user = users.find(x => x.ws === ws); 

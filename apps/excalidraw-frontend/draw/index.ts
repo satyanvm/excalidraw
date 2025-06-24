@@ -149,10 +149,6 @@ export async function initDraw(canvas: any, roomId: string, socket: WebSocket) {
         } 
       }
 
-
-
-      
-
     existingShapes.push(shape);
     
       console.log("the shape being pushed here is " , shape)
