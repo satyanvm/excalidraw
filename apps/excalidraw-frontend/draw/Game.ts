@@ -23,13 +23,12 @@ type Shape = {
 }
 
 export class Game {
-    
     private canvas: HTMLCanvasElement;     
     private ctx: CanvasRenderingContext2D; 
     private existingShapes: Shape[]
     private roomId: Number; 
     private clicked: boolean;
-    private startX = 0;
+    private startX = 0; 
     private startY = 0;
     private lastX = 0;
     private lastY = 0;
@@ -41,19 +40,18 @@ export class Game {
     private isPanning: boolean = false; 
     private noPanAndDraw: boolean = true;
     private isPan: boolean = false;
-      private lastMouseX: number = 0;
-  private lastMouseY: number = 0;
-  private allRectX: any[];
-  private allRect: any[];
-  private allShapeXRect: any[];
-  private allShapeYRect: any [];
+    private lastMouseX: number = 0;
+    private lastMouseY: number = 0;
+    private allRectX: any[];
+    private allRect: any[];
+    private allShapeXRect: any[];
+    private allShapeYRect: any [];
     socket: WebSocket;     
 
-
-    constructor(canvas: HTMLCanvasElement, roomId: Number, socket: WebSocket) {  
+    constructor(canvas: HTMLCanvasElement, roomId: Number, socket: WebSocket, existingShapes: any, allShapeXRect: any, allShapeYRect: any) {  
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d")!;
-        this.existingShapes = [];
+        this.existingShapes = existingShapes;
         this.BufferStroke = []
         this.roomId = roomId;
         this.socket = socket;
@@ -62,9 +60,12 @@ export class Game {
         this.canvas.height = document.body.clientHeight
         this.allRectX = [];
         this.allRect = [];
-        this.allShapeXRect = [];
-        this.allShapeYRect = [];
-        this.init();
+        this.allShapeXRect = allShapeXRect
+        this.allShapeYRect = allShapeYRect
+
+            
+         this.init();
+
         this.initHandlers();    
         this.initMouseHandlers();
         this.checkX(0,0);
@@ -83,12 +84,18 @@ export class Game {
     }
       
     setTool(tool: "circle" | "pencil" | "rect" | "hand") {
-        this.selectedTool = tool;
+        this.selectedTool = tool; 
     }
 
+
+
+
     async init() {
-        this.existingShapes = await getExistingShapes(this.roomId);     
-        this.clearCanvas();     
+
+
+        console.log("init is called"); 
+            
+        this.clearCanvas();  
     }    
     
          checkX(x: number, y: number) {
@@ -96,10 +103,10 @@ export class Game {
             console.log("this.allShapeYRect is " + this.allShapeYRect)
             if (this.allShapeXRect.includes(x) && this.allShapeYRect.includes(y)) {
         console.log("Triggered at X =", x);
-        this.canvas.style.cursor = "nwse-resize";
+        this.canvas.style.cursor = "nwse-resize"; 
         setTimeout(() => {
             this.canvas.style.cursor = "default";
-        }, 1000); 
+        }, 100); 
         }
         }
 
@@ -197,18 +204,11 @@ export class Game {
                 
                 this.ctx.stroke();
             } 
-    }
-
-       
-        })
-
-
-
-}
-
-
-
+                }
+                    })
+            }
     clearCanvas() {     
+
 
         this.ctx.setTransform(this.scale, 0, 0, this.scale, this.panX, this.panY);
         this.ctx.clearRect( 
@@ -286,6 +286,7 @@ export class Game {
 
        
         })
+
     }
 
     mouseDownHandler = (e: any) => {
@@ -375,26 +376,9 @@ export class Game {
         console.log("this.existingShapes is " + this.existingShapes)
 
      
-        this.existingShapes.map((shape: any) => {
-            if(typeof shape !== "object"){
-            const theshape = JSON.parse(JSON.parse(JSON.parse((shape))))
-            console.log("typeof theshape is " + typeof theshape)
-            console.log("theshape.type is " + theshape.type)
-            if(theshape.type === "rect") {
-            this.allRect.push(theshape)
-            console.log("theshape from if statement is " , theshape)
-            }
-    }})
-        console.log("this.allRect is " , this.allRect) 
 
-        this.allRect.map((x) => { 
-            this.allShapeXRect.push(x.x)
-            console.log("pushing x.y which is "+ x.y);
-            this.allShapeYRect.push(x.y)
-            console.log("this.allShapeYRect from .map push is ", this.allShapeYRect)
-        }) 
         console.log("before checkx function")
-        this.checkX(canvasMouseX, canvasMouseY);
+        this.checkX(mouseX, mouseY);
 
         if(this.clicked){  
         if(this.isPanning){

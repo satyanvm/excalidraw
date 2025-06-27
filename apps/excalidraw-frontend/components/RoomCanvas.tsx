@@ -17,7 +17,7 @@ export function RoomCanvas({roomId}: {roomId: string}){
                 type: "join_room",
                 roomId: Number(roomId)
             }))  
-        }
+        } 
     }, []) 
 
     if(!socket){

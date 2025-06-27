@@ -1,47 +1,26 @@
 import { initDraw } from "@/draw";
-import { useEffect, useRef, useState } from "react";
 import { IconButton } from "./Icons";
 import { Circle, Pencil, RectangleHorizontalIcon, Hand } from "lucide-react";
 import { Game } from "@/draw/Game";
+import { getExistingShapes } from "@/draw/http";
+import { all } from "axios";
+import { useGame } from "@/draw/newcalls";
 
 type Shape = "circle" | "rect" | "pencil" | "hand";
  
 let activated = "";
 
-export function Canvas({  
+export  function Canvas({  
     roomId,               
     socket     
 }: { 
     roomId: Number, 
     socket: WebSocket
 }){
-        const canvasRef = useRef<HTMLCanvasElement>(null);
-        const [selectedTool, setSelectedTool] = useState<Shape>("circle") 
-        const [game, setGame] = useState<Game>();
 
-        useEffect(() => {
-            console.log("inside useEffect")
-            if(!game){
-                console.log("no game object available here")
-                return;
-            }
-        game.setTool(selectedTool);
-            }, [selectedTool, game]);
 
-        useEffect(() => {
-
-        if(canvasRef.current){
-                
-            const g = new Game(canvasRef.current, roomId, socket)
-            setGame(g);
-
-            return () => {
-                g.destroy()
-            }
-  
-        }   
-
-    }, [canvasRef]); 
+//@ts-ignore
+    const {canvasRef, selectedTool, setSelectedTool} =  useGame(roomId, socket)
 
     return <div className="h-screen overflow-hidden bg-white">
         <canvas ref={canvasRef}></canvas>
