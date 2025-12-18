@@ -13,12 +13,13 @@ interface User {
 const users: User[] = [];
 
 function checkUser(token: string): string | null {
-    try {
-        // Remove "Bearer " prefix if present
-        const cleanToken = token.startsWith("Bearer ") ? token.slice(7) : token;
-        console.log("Attempting to verify token:", cleanToken.substring(0, 20) + "...");
+    if (!token) {
+        console.log("No token provided");
+        return null;
+    }
 
-        const decoded = jwt.verify(cleanToken, JWT_SECRET);
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
         if (typeof decoded == "string") {
             return null;
         }
@@ -26,8 +27,8 @@ function checkUser(token: string): string | null {
             return null;
         }
         return decoded.userId;
-    } catch (error) {
-        console.error("JWT verification error:", error);
+    } catch (err) {
+        console.log("JWT verification failed:", err);
         return null;
     }
 }
@@ -54,19 +55,7 @@ wss.on("connection", function connection(ws, request) {
         ws: ws,
     });
 
-    const decoded = jwt.verify(token ?? "", JWT_SECRET);
-
-    if (typeof decoded == "string") {
-        console.log("type of decoded is string and therefore returning");
-        ws.close();
-        return;
-    }
-
-    if (!decoded || !decoded.userId) {
-        console.log("problem here");
-        ws.close();
-        return;
-    }
+    // JWT already verified in checkUser, no need to verify again
 
     ws.on("message", async function message(data) {
         let parsedData;
@@ -101,7 +90,7 @@ wss.on("connection", function connection(ws, request) {
 
         if (parsedData.type === "chat") {
             try {
-                console.log(
+                -console.log(
                     "after chat and parsedData.roomId is " + parsedData.roomId,
                 );
                 const roomId = parsedData.roomId;
