@@ -1,22 +1,35 @@
 import axios from "axios";
 
 export async function getExistingShapes(roomId: Number) {
-  const slug = await axios.get(`http://localhost:3001/roomchats/${roomId}`);
+  try {
+    const slugResponse = await axios.get(
+      `http://localhost:3001/roomchats/${roomId}`,
+    );
+    const slug = slugResponse.data.slug;
 
-  const res = await axios.get(`http://localhost:3001/chats/chatroom`);
+    if (!slug) {
+      console.log("No slug found for room:", roomId);
+      return [];
+    }
 
-  const messages: string[] = res.data.messages;
+    const res = await axios.get(`http://localhost:3001/chats/${slug}`);
 
-  const shapes: any = messages
-    .map((str) => {
-      try {
-        return JSON.parse(str);
-      } catch (err) {
-        console.error("Failed to parse message:", str, err);
-        return null;
-      }
-    })
-    .filter(Boolean);
+    const messages: string[] = res.data.messages || [];
 
-  return shapes;
-} 
+    const shapes: any = messages
+      .map((str) => {
+        try {
+          return JSON.parse(str);
+        } catch (err) {
+          console.error("Failed to parse message:", str, err);
+          return null;
+        }
+      })
+      .filter(Boolean);
+
+    return shapes;
+  } catch (err) {
+    console.error("Error fetching shapes:", err);
+    return [];
+  }
+}

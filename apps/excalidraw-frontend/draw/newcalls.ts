@@ -13,8 +13,8 @@ export function useGame(roomId: number, socket: WebSocket) {
   const [allShapeXRect, setAllShapeXRect] = useState<number[]>([]);
   const [allShapeYRect, setAllShapeYRect] = useState<number[]>([]);
 
-  useEffect(() => { 
-    async function fetchShapes() {  
+  useEffect(() => {
+    async function fetchShapes() {
       const shapes = await getExistingShapes(roomId);
       setExistingShapes(shapes);
 
@@ -70,9 +70,16 @@ export function useGame(roomId: number, socket: WebSocket) {
   }, [roomId]);
 
   useEffect(() => {
-    if (canvasRef.current && existingShapes.length > 0) {
+    if (canvasRef.current) {
       console.log("Creating Game instance...");
-      const g = new Game(canvasRef.current, roomId, socket, existingShapes, allShapeXRect, allShapeYRect);
+      const g = new Game(
+        canvasRef.current,
+        roomId,
+        socket,
+        existingShapes,
+        allShapeXRect,
+        allShapeYRect,
+      );
       setGame(g);
 
       return () => {
@@ -80,7 +87,14 @@ export function useGame(roomId: number, socket: WebSocket) {
         g.destroy();
       };
     }
-  }, [canvasRef.current, existingShapes, allShapeXRect, allShapeYRect, roomId, socket]);
+  }, [
+    canvasRef.current,
+    existingShapes,
+    allShapeXRect,
+    allShapeYRect,
+    roomId,
+    socket,
+  ]);
 
   useEffect(() => {
     if (game) {

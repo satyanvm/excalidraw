@@ -12,6 +12,9 @@ importers:
         specifier: 6.8.2
         version: 6.8.2(prisma@6.8.2(typescript@5.8.2))(typescript@5.8.2)
     devDependencies:
+      '@types/jsonwebtoken':
+        specifier: ^9.0.9
+        version: 9.0.9
       prettier:
         specifier: ^3.5.3
         version: 3.5.3
