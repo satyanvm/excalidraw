@@ -23,27 +23,30 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
           email,
           password,
         });
-        localStorage.setItem("token", response.data.token);
-        router.push("/");
+        if (response.data.token) {
+          localStorage.setItem("token", response.data.token);
+          router.push("/");
+        } else {
+          setError("Invalid response from server");
+        }
       } else {
         const response = await axios.post("http://localhost:3001/signup", {
           email,
           password,
           name,
         });
-        // Auto sign in after signup
-        const signinResponse = await axios.post(
-          "http://localhost:3001/signin",
-          {
-            email,
-            password,
-          },
-        );
-        localStorage.setItem("token", signinResponse.data.token);
-        router.push("/");
+        // Token is now returned directly from signup
+        if (response.data.token) {
+          localStorage.setItem("token", response.data.token);
+          router.push("/");
+        } else {
+          setError("Invalid response from server");
+        }
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || "Something went wrong");
+      const errorMessage =
+        err.response?.data?.message || "Something went wrong";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

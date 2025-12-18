@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 import { middleware } from "./UserMiddleware";
 import { CreateUserSchema } from "@repo/common/config";
 import { prismaClient } from "db/client";
@@ -8,39 +9,73 @@ import cors from "cors";
 const app = express();
 app.use(express.json());
 app.use(cors());
-const JWT_SECRET = "123123";
+const JWT_SECRET = process.env.JWT_SECRET || "123123";
+const SALT_ROUNDS = 10;
 // add zod validation
 
 app.post("/signup", async (req, res) => {
   const data = CreateUserSchema.safeParse(req.body);
+
+  if (!data.success) {
+    res.status(400).json({
+      message: "Invalid input",
+      errors: data.error.errors,
+    });
+    return;
+  }
 
   const email = req.body.email;
   const name = req.body.name;
   const password = req.body.password;
 
   try {
+    // Hash the password before storing
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
     const user = await prismaClient.user.create({
       data: {
         email: email,
         name: name,
-        password: password,
+        password: hashedPassword,
       },
     });
-    res.json({
+
+    // Generate token for the new user
+    const token = jwt.sign(
+      {
+        userId: user.id,
+      },
+      JWT_SECRET as string,
+    );
+
+    res.status(201).json({
       userId: user.id,
+      token,
     });
-  } catch (e) {
+  } catch (e: any) {
     console.log("the error is " + e);
-    res.json({
-      message: "either the email already exists or the db is down",
-    });
+    if (e.code === "P2002") {
+      res.status(409).json({
+        message: "Email already exists",
+      });
+    } else {
+      res.status(500).json({
+        message: "Internal server error",
+      });
+    }
   }
 });
 
 app.post("/signin", async (req, res) => {
-  const name = req.body.name;
   const password = req.body.password;
   const email = req.body.email;
+
+  if (!email || !password) {
+    res.status(400).json({
+      message: "Email and password are required",
+    });
+    return;
+  }
 
   try {
     const user = await prismaClient.user.findFirst({
@@ -49,21 +84,37 @@ app.post("/signin", async (req, res) => {
       },
     });
 
-    const userId = user?.id;
+    if (!user) {
+      res.status(401).json({
+        message: "Invalid credentials",
+      });
+      return;
+    }
+
+    // Verify password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      res.status(401).json({
+        message: "Invalid credentials",
+      });
+      return;
+    }
 
     const token = jwt.sign(
       {
-        userId,
+        userId: user.id,
       },
       JWT_SECRET as string,
     );
+
     res.json({
       token,
     });
   } catch (e) {
     console.log(e);
-    res.json({
-      message: "some error signing in",
+    res.status(500).json({
+      message: "Internal server error",
     });
   }
 });
