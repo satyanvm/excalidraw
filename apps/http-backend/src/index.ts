@@ -12,181 +12,186 @@ const JWT_SECRET = "123123";
 // add zod validation
 
 app.post("/signup", async (req, res) => {
-  const data = CreateUserSchema.safeParse(req.body);
+    const data = CreateUserSchema.safeParse(req.body);
 
-  const email = req.body.email;
-  const name = req.body.name;
-  const password = req.body.password;
+    const email = req.body.email;
+    const name = req.body.name;
+    const password = req.body.password;
 
-  try {
-    const user = await prismaClient.user.create({
-      data: {
-        email: email,
-        name: name,
-        password: password,
-      },
-    });
-    res.json({
-      userId: user.id,
-    });
-  } catch (e) {
-    console.log("the error is " + e);
-    res.json({
-      message: "either the email already exists or the db is down",
-    });
-  }
+    try {
+        const user = await prismaClient.user.create({
+            data: {
+                email: email,
+                name: name,
+                password: password,
+            },
+        });
+        res.json({
+            userId: user.id,
+        });
+    } catch (e) {
+        console.log("the error is " + e);
+        res.json({
+            message: "either the email already exists or the db is down",
+        });
+    }
 });
 
 //@ts-ignore
 app.post("/signin", async (req, res) => {
-  const name = req.body.name;
-  const password = req.body.password;
-  const email = req.body.email;
+    const name = req.body.name;
+    const password = req.body.password;
+    const email = req.body.email;
 
-  try {
-    const user = await prismaClient.user.findFirst({
-      where: {
-        email: email,
-      },
-    });
+    try {
+        const user = await prismaClient.user.findFirst({
+            where: {
+                email: email,
+            },
+        });
 
-    if (!user) {
-      return res.status(401).json({
-        message: "user not found",
-      });
+        if (!user) {
+            return res.status(401).json({
+                message: "user not found",
+            });
+        }
+
+        if (user.password !== password) {
+            return res.status(401).json({
+                message: "password not correct"
+            })
+        }
+        const userId = user.id;
+
+        const token = jwt.sign(
+            {
+                userId,
+            },
+            JWT_SECRET as string,
+        );
+        res.json({
+            token,
+        });
+    } catch (e) {
+        console.log(e);
+        res.json({
+            message: "some error signing in",
+        });
     }
-
-    if(user.password !== password){
-        return res.status(401).json({
-            message: "password not correct"
-        })
-    }
-    const userId = user.id;
-
-    const token = jwt.sign(
-      {
-        userId,
-      },
-      JWT_SECRET as string,
-    );
-    res.json({
-      token,
-    });
-  } catch (e) {
-    console.log(e);
-    res.json({
-      message: "some error signing in",
-    });
-  }
 });
 
 app.post("/room", middleware, async (req, res) => {
-  const slug = req.body.slug;
-  //@ts-ignore
-  const userId = req.userId;
-  const chat = req.body.chat;
+    const slug = req.body.slug;
+    //@ts-ignore
+    const userId = req.userId;
+    const chat = req.body.chat;
 
-  try {
-    const room = await prismaClient.room.create({
-      data: {
-        slug: slug,
-        adminId: userId,
-      },
-    });
+    try {
+        const room = await prismaClient.room.create({
+            data: {
+                slug: slug,
+                adminId: userId,
+            },
+        });
 
-    res.json({
-      roomId: room.id,
-    });
-  } catch (e) {
-    console.log("The error is " + e);
-  }
+        res.json({
+            roomId: room.id,
+        });
+    } catch (e) {
+        console.log("The error is " + e);
+    }
 });
 
 app.get("/chats/:slug", async (req, res) => {
-  const slug = req.params.slug;
+    const slug = req.params.slug;
 
-  const room = await prismaClient.room.findFirst({
-    where: {
-      slug: slug,
-    },
-    include: {
-      chats: true,
-    },
-  });
+    const room = await prismaClient.room.findFirst({
+        where: {
+            slug: slug,
+        },
+        include: {
+            chats: true,
+        },
+    });
 
-  const roomArray = room?.chats ?? [];
+    const roomArray = room?.chats ?? [];
 
-  const messages = [];
-  for (const chat of roomArray) {
-    try {
-      if (typeof chat.message === "string") {
-        messages.push(chat.message);
-        console.log("inside if string and chat.message is " + chat.message);
-      } else {
-        //@ts-ignore
-        messages.push(...chat.message);
-        console.log(
-          "i passed chat.message to messages.push which is " + chat.message,
-        );
-      }
-    } catch (e) {
-      console.log("the error here is " + e);
-      res.json({
-        message: "some issue ",
-      });
+    const messages = [];
+    for (const chat of roomArray) {
+        try {
+            if (typeof chat.message === "string") {
+                messages.push(chat.message);
+                console.log("inside if string and chat.message is " + chat.message);
+            } else {
+                //@ts-ignore
+                messages.push(...chat.message);
+                console.log(
+                    "i passed chat.message to messages.push which is " + chat.message,
+                );
+            }
+        } catch (e) {
+            console.log("the error here is " + e);
+            res.json({
+                message: "some issue ",
+            });
+        }
     }
-  }
-  console.log(messages);
-  res.json({
-    messages,
-  });
+    console.log(messages);
+    res.json({
+        messages,
+    });
 });
 
 app.post("/savemessage", (req, res) => {
-  const chat = req.body.chat;
-  const slug = req.body.slug;
+    const chat = req.body.chat;
+    const slug = req.body.slug;
 
-  const room = prismaClient.room.findFirst({
-    where: {
-      slug: slug,
-    },
-  });
+    const room = prismaClient.room.findFirst({
+        where: {
+            slug: slug,
+        },
+    });
 
-  //logic to push chat to db
+    //logic to push chat to db
 });
 
 app.get("/roomchats/:roomId", async (req, res) => {
-  try {
-    const roomId = Number(req.params.roomId);
-    console.log(req.params.roomId);
+    try {
+        const roomId = Number(req.params.roomId);
+        console.log(req.params.roomId);
 
-    const room = await prismaClient.room.findFirst({
-      where: {
-        id: roomId,
-      },
-    });
+        const room = await prismaClient.room.findFirst({
+            where: {
+                id: roomId,
+            },
+        });
 
-    res.json({
-      slug: room?.slug,
-    });
-  } catch (e) {
-    console.log("error in /id endpoint is " + e);
-    res.json({
-      messages: "Issue in fetching",
-    });
-  }
+        res.json({
+            slug: room?.slug,
+        });
+    } catch (e) {
+        console.log("error in /id endpoint is " + e);
+        res.json({
+            messages: "Issue in fetching",
+        });
+    }
 });
 
 app.get("/room/:slug", async (req, res) => {
-  const slug = req.params.slug;
-  const room = await prismaClient.room.findFirst({
-    where: {
-      slug,
-    },
-  });
-  res.json({
-    id: room?.id,
-  });
+    const slug = req.params.slug;
+    try {
+        const room = await prismaClient.room.findFirst({
+            where: {
+                slug: slug
+            },
+        });
+        res.json({
+            id: room?.id,
+        });
+    } catch (e) {
+        console.log("Error in /room/:slug:", e);
+        res.status(500).json({ error: "Database error" });
+    }
 });
 
 app.listen(3001);
