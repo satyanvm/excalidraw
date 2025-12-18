@@ -37,6 +37,7 @@ app.post("/signup", async (req, res) => {
   }
 });
 
+//@ts-ignore
 app.post("/signin", async (req, res) => {
   const name = req.body.name;
   const password = req.body.password;
@@ -49,7 +50,18 @@ app.post("/signin", async (req, res) => {
       },
     });
 
-    const userId = user?.id;
+    if (!user) {
+      return res.status(401).json({
+        message: "user not found",
+      });
+    }
+
+    if(user.password !== password){
+        return res.status(401).json({
+            message: "password not correct"
+        })
+    }
+    const userId = user.id;
 
     const token = jwt.sign(
       {

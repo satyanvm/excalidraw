@@ -24,7 +24,7 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
           password,
         });
         localStorage.setItem("token", response.data.token);
-        router.push("/");
+        router.push("/canvas/1");
       } else {
         const response = await axios.post("http://localhost:3001/signup", {
           email,
@@ -40,7 +40,7 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
           },
         );
         localStorage.setItem("token", signinResponse.data.token);
-        router.push("/");
+        router.push("/signin");
       }
     } catch (err: any) {
       setError(err.response?.data?.message || "Something went wrong");
