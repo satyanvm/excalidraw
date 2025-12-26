@@ -400,18 +400,6 @@ export class Game {
         BufferStroke: this.BufferStroke,
       };
     } 
-    // eraser tool
-    else if(selectedTool === "eraser"){
-      shape = {
-        type: "eraser",
-        startX: (this.startX - this.panX) / this.scale,
-        startY: (this.startY - this.panY) / this.scale,
-        clientX: (e.clientX - this.panX) / this.scale,
-        clientY: (e.clientY - this.panY) / this.scale,
-        BufferStroke: this.BufferStroke,
-      };
-    }
-
     if (!shape) {
       console.log("returning because of no shape");
       return;
