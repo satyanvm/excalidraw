@@ -1,6 +1,6 @@
 import { getExistingShapes } from "./http";
 
-type Tool = "circle" | "pencil" | "rect" | "hand";
+type Tool = "circle" | "pencil" | "rect" | "hand" | "eraser";
 
 type Shape =
   | {
@@ -23,7 +23,15 @@ type Shape =
       clientX: number;
       clientY: number;
       BufferStroke: any;
-    };
+    }
+  | {
+      type: "eraser";
+      startX: number;
+      startY: number;
+      clientX: number;
+      clientY: number;
+      BufferStroke: any;
+  };
 
 export class Game {
   private canvas: HTMLCanvasElement;
@@ -90,7 +98,7 @@ export class Game {
     this.canvas.removeEventListener("wheel", this.mouseWheelHandler);
   }
 
-  setTool(tool: "circle" | "pencil" | "rect" | "hand") {
+  setTool(tool: "circle" | "pencil" | "rect" | "hand" | "eraser") {
     this.selectedTool = tool;
   }
 
@@ -312,13 +320,17 @@ export class Game {
 
           this.ctx.beginPath();
           this.ctx.moveTo(
+            // x coordinate of the first point
             theshape.BufferStroke[0][0],
+            // y coordinate of the first point
             theshape.BufferStroke[0][1],
           );
 
           for (let i = 1; i < theshape.BufferStroke.length; i++) {
             this.ctx.lineTo(
+              // x coordinate of the ith point
               theshape.BufferStroke[i][0],
+              // y coordinate of the ith point
               theshape.BufferStroke[i][1],
             );
           }
@@ -387,8 +399,7 @@ export class Game {
         clientY: (e.clientY - this.panY) / this.scale,
         BufferStroke: this.BufferStroke,
       };
-    }
-
+    } 
     if (!shape) {
       console.log("returning because of no shape");
       return;
@@ -406,6 +417,7 @@ export class Game {
       }),
     );
   };
+
   mouseMoveHandler = (e: any) => {
     console.log("right now this.isPanning is " + this.isPanning);
 
@@ -488,6 +500,42 @@ export class Game {
 
           this.lastX = e.offsetX;
           this.lastY = e.offsetY;
+        } else if (selectedTool === "eraser") {
+          this.ctx.lineWidth = 10;
+          this.ctx.lineCap = "round";
+          this.ctx.lineJoin = "round";
+          const eraserX = (e.offsetX - this.panX) / this.scale;
+          const eraserY = (e.offsetY - this.panY) / this.scale;
+          const eraserRadius = 10;
+
+          this.ctx.beginPath();
+
+          this.ctx.moveTo(
+            (this.lastX - this.panX) / this.scale,
+            (this.lastY - this.panY) / this.scale,
+          );
+
+          this.ctx.stroke();
+
+          // We will do bounds intersection check for eraser
+          // if the eraser is intersecting with any shape, then clear that shape
+          // first fetch the path of the existing shapes
+          // first implementing only for pencils
+          this.existingShapes = this.existingShapes.filter((shape) => {
+            if (shape.type === "pencil") {
+              // Check if any point in the stroke is within eraser radius
+              for (const point of shape.BufferStroke) {
+                const dx = point[0] - eraserX;
+                const dy = point[1] - eraserY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < eraserRadius) {
+                  return false; // Remove this shape (eraser touched it)
+                }
+              }
+            }
+            return true; // Keep this shape
+          });
         }
       }
     }
