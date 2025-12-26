@@ -516,11 +516,9 @@ export class Game {
           this.ctx.lineWidth = 10;
           this.ctx.lineCap = "round";
           this.ctx.lineJoin = "round";
-
-          const point = [
-            (e.offsetX - this.panX) / this.scale,
-            (e.offsetY - this.panY) / this.scale,
-          ];
+          const eraserX = (e.offsetX - this.panX) / this.scale;
+          const eraserY = (e.offsetY - this.panY) / this.scale;
+          const eraserRadius = 10;
 
           this.ctx.beginPath();
 
@@ -528,58 +526,27 @@ export class Game {
             (this.lastX - this.panX) / this.scale,
             (this.lastY - this.panY) / this.scale,
           );
-          
-          // fetch data from the existing shapes and clear the shape that is under the eraser
-          this.existingShapes.forEach((shape) => {
-            if (shape.type === "rect") {
-              this.ctx.clearRect(shape.x, shape.y, shape.width, shape.height);
-            } 
-          });
-          this.lastX = e.offsetX;
-          this.lastY = e.offsetY;
+
+          this.ctx.stroke();
 
           // We will do bounds intersection check for eraser
           // if the eraser is intersecting with any shape, then clear that shape
           // first fetch the path of the existing shapes
           // first implementing only for pencils
-          this.existingShapes.forEach((shape) => {
-            // // here the shape i am assuming is an object
-            // const theshape = JSON.parse(JSON.parse(JSON.parse(shape)));
+          this.existingShapes = this.existingShapes.filter((shape) => {
             if (shape.type === "pencil") {
-              let allPoints = shape.BufferStroke;
-              allPoints.forEach((point: any) => {
-                // if (this.isIntersecting(point)) {
-                  // now here delete the shape pencil drawing which has the point(s) 
-                  // intersecting with the eraser
-                  // first fetch the particular drawing shape id and then delete it
-                  // @ts-ignore we are taking the id in the db of the particular shape
-                  let shapeId = shape.id;
-                  this.existingShapes = this.existingShapes.filter(
-                   // @ts-ignore we are taking the id in the db of the particular shape
-                    (shape) => shape.type !== "pencil" || shape.id !== shapeId
-                  );
-                  // now delete the shape from the db
-                  // will implement this
-                  // this.deleteShape(shapeId);
-
-
-                  // trying two for loops for comparison to delete
-                  for(let i = 0; i <  shape.BufferStroke.length; i++){
-                    for(let j = 0; j < this.BufferStroke.length; j++){
-                        if(shape.BufferStroke[i][0] == this.BufferStroke[j][0]){
-                          if(shape.BufferStroke[i][1] == this.BufferStroke[j][1]){
-                            // if the condition is true we delete the shape
-                            this.existingShapes = this.existingShapes.filter(
-                              // @ts-ignore we are taking the id in the db of the particular shape
-                              (shape) => shape.type !== "pencil" || shape.id !== shapeId
-                            );
-                          // }
-                      }
-                    }
-                  }
+              // Check if any point in the stroke is within eraser radius
+              for (const point of shape.BufferStroke) {
+                const dx = point[0] - eraserX;
+                const dy = point[1] - eraserY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < eraserRadius) {
+                  return false; // Remove this shape (eraser touched it)
                 }
-              })
+              }
             }
+            return true; // Keep this shape
           });
         }
       }
