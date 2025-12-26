@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { getExistingShapes } from "./http";
 import { Game } from "./Game";
 
-type Shape = "circle" | "rect" | "pencil" | "hand";
+type Shape = "circle" | "rect" | "pencil" | "hand" | "eraser";
 
 export function useGame(roomId: number, socket: WebSocket) {
   const canvasRef = useRef<HTMLCanvasElement>(null);

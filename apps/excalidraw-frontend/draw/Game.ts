@@ -1,6 +1,6 @@
 import { getExistingShapes } from "./http";
 
-type Tool = "circle" | "pencil" | "rect" | "hand";
+type Tool = "circle" | "pencil" | "rect" | "hand" | "eraser";
 
 type Shape =
   | {
@@ -23,7 +23,15 @@ type Shape =
       clientX: number;
       clientY: number;
       BufferStroke: any;
-    };
+    }
+  | {
+      type: "eraser";
+      startX: number;
+      startY: number;
+      clientX: number;
+      clientY: number;
+      BufferStroke: any;
+  };
 
 export class Game {
   private canvas: HTMLCanvasElement;
@@ -90,7 +98,7 @@ export class Game {
     this.canvas.removeEventListener("wheel", this.mouseWheelHandler);
   }
 
-  setTool(tool: "circle" | "pencil" | "rect" | "hand") {
+  setTool(tool: "circle" | "pencil" | "rect" | "hand" | "eraser") {
     this.selectedTool = tool;
   }
 
@@ -312,13 +320,17 @@ export class Game {
 
           this.ctx.beginPath();
           this.ctx.moveTo(
+            // x coordinate of the first point
             theshape.BufferStroke[0][0],
+            // y coordinate of the first point
             theshape.BufferStroke[0][1],
           );
 
           for (let i = 1; i < theshape.BufferStroke.length; i++) {
             this.ctx.lineTo(
+              // x coordinate of the ith point
               theshape.BufferStroke[i][0],
+              // y coordinate of the ith point
               theshape.BufferStroke[i][1],
             );
           }
@@ -387,6 +399,17 @@ export class Game {
         clientY: (e.clientY - this.panY) / this.scale,
         BufferStroke: this.BufferStroke,
       };
+    } 
+    // eraser tool
+    else if(selectedTool === "eraser"){
+      shape = {
+        type: "eraser",
+        startX: (this.startX - this.panX) / this.scale,
+        startY: (this.startY - this.panY) / this.scale,
+        clientX: (e.clientX - this.panX) / this.scale,
+        clientY: (e.clientY - this.panY) / this.scale,
+        BufferStroke: this.BufferStroke,
+      };
     }
 
     if (!shape) {
@@ -406,6 +429,7 @@ export class Game {
       }),
     );
   };
+
   mouseMoveHandler = (e: any) => {
     console.log("right now this.isPanning is " + this.isPanning);
 
@@ -488,6 +512,75 @@ export class Game {
 
           this.lastX = e.offsetX;
           this.lastY = e.offsetY;
+        } else if (selectedTool === "eraser") {
+          this.ctx.lineWidth = 10;
+          this.ctx.lineCap = "round";
+          this.ctx.lineJoin = "round";
+
+          const point = [
+            (e.offsetX - this.panX) / this.scale,
+            (e.offsetY - this.panY) / this.scale,
+          ];
+
+          this.ctx.beginPath();
+
+          this.ctx.moveTo(
+            (this.lastX - this.panX) / this.scale,
+            (this.lastY - this.panY) / this.scale,
+          );
+          
+          // fetch data from the existing shapes and clear the shape that is under the eraser
+          this.existingShapes.forEach((shape) => {
+            if (shape.type === "rect") {
+              this.ctx.clearRect(shape.x, shape.y, shape.width, shape.height);
+            } 
+          });
+          this.lastX = e.offsetX;
+          this.lastY = e.offsetY;
+
+          // We will do bounds intersection check for eraser
+          // if the eraser is intersecting with any shape, then clear that shape
+          // first fetch the path of the existing shapes
+          // first implementing only for pencils
+          this.existingShapes.forEach((shape) => {
+            // // here the shape i am assuming is an object
+            // const theshape = JSON.parse(JSON.parse(JSON.parse(shape)));
+            if (shape.type === "pencil") {
+              let allPoints = shape.BufferStroke;
+              allPoints.forEach((point: any) => {
+                // if (this.isIntersecting(point)) {
+                  // now here delete the shape pencil drawing which has the point(s) 
+                  // intersecting with the eraser
+                  // first fetch the particular drawing shape id and then delete it
+                  // @ts-ignore we are taking the id in the db of the particular shape
+                  let shapeId = shape.id;
+                  this.existingShapes = this.existingShapes.filter(
+                   // @ts-ignore we are taking the id in the db of the particular shape
+                    (shape) => shape.type !== "pencil" || shape.id !== shapeId
+                  );
+                  // now delete the shape from the db
+                  // will implement this
+                  // this.deleteShape(shapeId);
+
+
+                  // trying two for loops for comparison to delete
+                  for(let i = 0; i <  shape.BufferStroke.length; i++){
+                    for(let j = 0; j < this.BufferStroke.length; j++){
+                        if(shape.BufferStroke[i][0] == this.BufferStroke[j][0]){
+                          if(shape.BufferStroke[i][1] == this.BufferStroke[j][1]){
+                            // if the condition is true we delete the shape
+                            this.existingShapes = this.existingShapes.filter(
+                              // @ts-ignore we are taking the id in the db of the particular shape
+                              (shape) => shape.type !== "pencil" || shape.id !== shapeId
+                            );
+                          // }
+                      }
+                    }
+                  }
+                }
+              })
+            }
+          });
         }
       }
     }

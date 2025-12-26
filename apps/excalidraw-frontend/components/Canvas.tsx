@@ -1,12 +1,12 @@
 import { initDraw } from "@/draw";
 import { IconButton } from "./Icons";
-import { Circle, Pencil, RectangleHorizontalIcon, Hand } from "lucide-react";
+import { Circle, Pencil, RectangleHorizontalIcon, Hand, Eraser } from "lucide-react";
 import { Game } from "@/draw/Game";
 import { getExistingShapes } from "@/draw/http";
 import { all } from "axios";
 import { useGame } from "@/draw/newcalls";
 
-type Shape = "circle" | "rect" | "pencil" | "hand";
+type Shape = "circle" | "rect" | "pencil" | "hand" | "eraser";
 
 let activated = "";
 
@@ -43,6 +43,8 @@ export function TopBar({
     activated = "pencil";
   } else if (selectedTool === "hand") {
     activated = "hand";
+  } else if (selectedTool === "eraser") {
+    activated = "eraser";
   } else {
     console.log("selectedTool is none of those");
   }
@@ -97,6 +99,16 @@ export function TopBar({
           setSelectedTool("hand");
         }}
         activated={activated === "hand"}
+      />
+
+      <IconButton
+        selectedTool={selectedTool}
+        setSelectedTool={setSelectedTool}
+        icon={<Eraser />}
+        onClick={() => {
+          setSelectedTool("eraser");
+        }}
+        activated={activated === "eraser"}
       />
     </div>
   );
