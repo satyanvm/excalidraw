@@ -3,7 +3,6 @@ import jwt from "jsonwebtoken";
 const wss = new WebSocketServer({ port: 8080 });
 import { prismaClient } from "db/client";
 
-const JWT_SECRET = "123123";
 interface User {
     ws: WebSocket;
     rooms: Number[];
@@ -19,7 +18,7 @@ function checkUser(token: string): string | null {
     }
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const decoded = jwt.verify(token, "123123");
         if (typeof decoded == "string") {
             return null;
         }

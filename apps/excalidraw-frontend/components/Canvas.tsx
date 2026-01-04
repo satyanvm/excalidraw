@@ -12,7 +12,7 @@ let activated = "";
 
 export function Canvas({
   roomId,
-  socket,
+  socket
 }: {
   roomId: Number;
   socket: WebSocket;

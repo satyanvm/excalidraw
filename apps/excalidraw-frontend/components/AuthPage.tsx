@@ -23,8 +23,19 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
                     email,
                     password,
                 });
+                if(!response){
+                    console.log("no response from signin endpoint");
+                    setError("Something went wrong");
+                    return;
+                }
+                console.log("response is ", response);
+                if(!response.data.token){
+                    console.log("response is there but response.data.token is not there");
+                    setError("Something went wrong");
+                    return;
+                }
                 localStorage.setItem("token", response.data.token);
-                router.push("/canvas/1");
+                router.push("/room");
             } else {
                 const response = await axios.post("http://localhost:3001/signup", {
                     email,

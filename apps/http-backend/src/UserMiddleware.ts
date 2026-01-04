@@ -1,11 +1,10 @@
 import { Request, NextFunction, Response } from "express";
 import jwt from "jsonwebtoken";
-const JWT_SECRET = "123123";
 
 export function middleware(req: Request, res: Response, next: NextFunction) {
   const token = req.headers["authorization"] ?? "";
-
-  const decoded = jwt.verify(token, JWT_SECRET);
+//@ts-ignore
+  const decoded = jwt.verify(token, "123123");
   //@ts-ignore
   console.log("decoded.usrid is " + decoded.userId);
   if (decoded) {
