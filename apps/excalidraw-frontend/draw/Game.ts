@@ -121,9 +121,9 @@ export class Game {
 
   initHandlers() {
     this.socket.onmessage = (event) => {
-      const themessage = JSON.parse(event.data);
-
       const message = JSON.parse(JSON.parse(JSON.parse(event.data).message));
+
+      const themessage = JSON.parse(event.data);
 
       console.log("before chat message.type");
 

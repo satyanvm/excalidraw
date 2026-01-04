@@ -4,11 +4,11 @@ import { middleware } from "./UserMiddleware";
 import { CreateUserSchema } from "@repo/common/config";
 import { prismaClient } from "db/client";
 import cors from "cors";
+import { env } from "process";
 
 const app = express();
 app.use(express.json());
 app.use(cors());
-const JWT_SECRET = "123123";
 // add zod validation
 
 app.post("/signup", async (req, res) => {
@@ -67,7 +67,8 @@ app.post("/signin", async (req, res) => {
             {
                 userId,
             },
-            JWT_SECRET as string,
+            //@ts-ignore
+            "123123"
         );
         res.json({
             token,
@@ -75,7 +76,8 @@ app.post("/signin", async (req, res) => {
     } catch (e) {
         console.log(e);
         res.json({
-            message: "some error signing in",
+            message: "some error signing in, error is " + e,
+            error: e as Error,
         });
     }
 });
@@ -177,6 +179,7 @@ app.get("/roomchats/:roomId", async (req, res) => {
     }
 });
 
+//@ts-ignore
 app.get("/room/:slug", async (req, res) => {
     const slug = req.params.slug;
     try {
@@ -185,6 +188,9 @@ app.get("/room/:slug", async (req, res) => {
                 slug: slug
             },
         });
+        if(!room){
+            return res.status(404).json({ error: "Room not found" });
+        }
         res.json({
             id: room?.id,
         });
@@ -194,4 +200,25 @@ app.get("/room/:slug", async (req, res) => {
     }
 });
 
+app.post("/createroom/:slug", async (req, res) => {
+    const slug = req.params.slug;
+    try{
+        const room = await prismaClient.room.create({
+            data: {
+                adminId: req.body.adminId,
+                slug: slug,
+            },
+        })
+        res.json({
+            roomId: room.id,
+        })
+    }catch(e){
+        console.log("error in /createroom/:slug endpoint is " + e);
+        res.json({
+            error: e as Error,
+            //@ts-ignore
+            messages: `Issue in creating: ${e.message}`,
+        })
+    }
+})
 app.listen(3001);
