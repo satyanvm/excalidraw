@@ -9,6 +9,7 @@ function Room() {
     const [slug, setSlug] = useState("");
     const [slugCreate, setSlugCreate] = useState("");
     const [loading, setLoading] = useState(false);
+    const [loadingCreate, setLoadingCreate] = useState(false);
     const [error, setError] = useState("");
     const router = useRouter();
 
@@ -46,14 +47,14 @@ function Room() {
             return;
         }
         console.log("slugCreate check is passed, slugCreate is", slugCreate);
-        setLoading(true);
+        setLoadingCreate(true);
         setError("");
         // get token from localStorage and decode it for userId, will create a middleware for this in future
         const token = localStorage.getItem("token");
         if(!token){
             console.log("no token found");
             setError("Please login to create a room");
-            setLoading(false);
+            setLoadingCreate(false);
             return;
         }
         console.log("token check is passed, token is", token);
@@ -62,7 +63,7 @@ function Room() {
         const decoded = jwtDecode<{ userId?: string }>(token);
         if (!decoded || !decoded.userId) {
             setError("Invalid token. Please login again.");
-            setLoading(false);
+            setLoadingCreate(false);
             return;
         }
         const userId = decoded.userId;
@@ -80,7 +81,7 @@ function Room() {
             console.error("Error:", err);
             setError(err.response?.data?.error || "Room not found or server error");
         } finally {
-            setLoading(false);
+            setLoadingCreate(false);
         } 
     }
 
@@ -123,10 +124,10 @@ function Room() {
 
                 <button
                     onClick={handleCreateRoom}
-                    disabled={loading}
+                    disabled={loadingCreate}
                     className="w-full py-3 bg-black hover:bg-zinc-800 text-white font-semibold rounded-lg border border-zinc-700 transition-colors disabled:opacity-50"
                 >
-                    {loading ? "Creating..." : "Create Room"}
+                    {loadingCreate ? "Creating..." : "Create Room"}
                 </button>
             </div>
         </div>
