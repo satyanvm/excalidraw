@@ -3,7 +3,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import jwt from "jsonwebtoken";
+import { jwtDecode } from "jwt-decode";
 
 function Room() {
     const [slug, setSlug] = useState("");
@@ -41,7 +41,7 @@ function Room() {
     }
 
     async function handleCreateRoom(){
-              if (!slugCreate) {
+              if (!slugCreate) {    
             setError("Please enter a room slug");
             return;
         }
@@ -53,12 +53,13 @@ function Room() {
         if(!token){
             console.log("no token found");
             setError("Please login to create a room");
+            setLoading(false);
             return;
         }
         console.log("token check is passed, token is", token);
         // Decode JWT token to get userId (verification happens on backend)
         // Note: jwt.decode() doesn't verify the signature - that's done on the server
-        const decoded = jwt.decode(token) as { userId?: string } | null;
+        const decoded = jwtDecode<{ userId?: string }>(token);
         if (!decoded || !decoded.userId) {
             setError("Invalid token. Please login again.");
             setLoading(false);
