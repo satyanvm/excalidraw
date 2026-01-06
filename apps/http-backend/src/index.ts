@@ -5,6 +5,7 @@ import { CreateUserSchema } from "@repo/common/config";
 import { prismaClient } from "db/client";
 import cors from "cors";
 import { env } from "process";
+import { JWT_SECRET } from "@repo/backend-common";
 
 const app = express();
 app.use(express.json());
@@ -63,13 +64,13 @@ app.post("/signin", async (req, res) => {
         }
         const userId = user.id;
 
-        const token = jwt.sign(
-            {
-                userId,
-            },
-            //@ts-ignore
-            "123123"
-        );
+      const token = jwt.sign(
+  {
+    userId,
+  },
+  JWT_SECRET
+);
+
         res.json({
             token,
         });
