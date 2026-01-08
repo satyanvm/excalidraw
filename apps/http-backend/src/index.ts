@@ -5,7 +5,7 @@ import { CreateUserSchema } from "@repo/common/config";
 import { prismaClient } from "db/client";
 import cors from "cors";
 import { env } from "process";
-import { JWT_SECRET } from "@repo/backend-common";
+import { JWT_SECRET } from "@repo/backend-common/config";
 
 const app = express();
 app.use(express.json());
