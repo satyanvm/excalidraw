@@ -247,6 +247,14 @@ export class Game {
   // }
   
   clearCanvas() {
+    console.log("clearcanvas() is called");
+    console.log("this.ctx:", this.ctx);
+    console.log("this.canvas:", this.canvas);
+    
+    if (!this.ctx) {
+      console.error("ERROR: ctx is null!");
+      return;
+    }
     this.ctx.setTransform(this.scale, 0, 0, this.scale, this.panX, this.panY);
     this.ctx.clearRect(
       -this.panX / this.scale,
@@ -264,11 +272,13 @@ export class Game {
       this.canvas.height / this.scale,
     );
 
+    console.log("before the map of the existingShapes");
     this.existingShapes.map((shape) => {
       console.log("shape is " + shape);
-      if (typeof shape === "object") {
+      // In JS/TS typeof null is "object" so if we keep check like 
+      // if (typeof shape === "object") then it will pass for null
+      if (shape !== null && typeof shape === "object") {
         console.log("came inside the typeof shape === object");
-        console.log("shape.type is " + shape.type);
         if (shape.type === "rect") {
           this.ctx.strokeStyle = "rgba(255, 255, 255)";
           this.ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
@@ -301,8 +311,16 @@ export class Game {
           this.ctx.stroke();
         }
       } else {
+        // console.log("came inside the else of the clearCanvas");
+        // console.log("shape is " + shape);
+        // console.log("shape.type is below");
+        // console.log((JSON.parse(JSON.parse(JSON.parse(shape))) as any).type);
+        try{
+          console.log("came inside the try block of the clearCanvas");
         const theshape = JSON.parse(JSON.parse(JSON.parse(shape)));
-
+        console.log("theshape is below");
+        console.log(theshape);
+        if (theshape !== null && typeof theshape === "object") {
         if (theshape.type === "rect") {
           this.ctx.strokeStyle = "rgba(255,255,255)";
           this.ctx.strokeRect(
@@ -350,6 +368,12 @@ export class Game {
 
           this.ctx.stroke();
         }
+      } else{
+        console.log("came inside the else of the theshape, either null check is failing or typeof check is failing");
+      }
+      } catch (error) {
+        console.log("caught in try block, error is " + error);
+      }
       }
     });
   }
@@ -413,14 +437,48 @@ export class Game {
         clientY: (e.clientY - this.panY) / this.scale,
         BufferStroke: this.BufferStroke,
       };
-    } 
+    } else if (selectedTool === "eraser") {
+      shape = {
+        type: "eraser",
+        startX: (this.startX - this.panX) / this.scale,
+        startY: (this.startY - this.panY) / this.scale,
+        clientX: (e.clientX - this.panX) / this.scale,
+        clientY: (e.clientY - this.panY) / this.scale,
+        BufferStroke: this.BufferStroke,
+      };
+
+      // here we will match if the eraser is intersecting with any shape
+      const eraserRadius = 10;
+      this.existingShapes = this.existingShapes.filter((theshape) => {
+        try {
+          if (theshape.type === "pencil") {
+            // Check if any point in the pencil stroke is within eraser radius of any eraser point
+            for (const point of theshape.BufferStroke) {
+              for (const pointStroke of this.BufferStroke) {
+                const dx = point[0] - pointStroke[0];
+                const dy = point[1] - pointStroke[1];
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < eraserRadius) {
+                  return false; // Remove this shape (eraser touched it)
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.log("caught in the shape try block, error is " + error);
+        }
+        return true; // Keep this shape
+      });
+      console.log("before calling of clearCanvas in mouseUpHandler");
+      this.clearCanvas();
+    }
     // we are not returning because eraser is not a shape
     // if (!shape) {
     //   console.log("returning because of no shape");
     //   return;
     // }
 
-    this.existingShapes.push(shape? shape : {type: "eraser", startX: (this.startX - this.panX) / this.scale, startY: (this.startY - this.panY) / this.scale, clientX: (e.clientX - this.panX) / this.scale, clientY: (e.clientY - this.panY) / this.scale, BufferStroke: this.BufferStroke});
+    // this.existingShapes.push(shape? shape : {type: "eraser", startX: (this.startX - this.panX) / this.scale, startY: (this.startY - this.panY) / this.scale, clientX: (e.clientX - this.panX) / this.scale, clientY: (e.clientY - this.panY) / this.scale, BufferStroke: this.BufferStroke});
     this.lastX = e.offsetX;
     this.lastY = e.offsetY;
 
@@ -538,6 +596,7 @@ export class Game {
           // first implementing only for pencils
           this.existingShapes = this.existingShapes.filter((shape) => {
             console.log("shape is " + shape);
+            try{
             if (shape.type === "pencil") {
               // Check if any point in the stroke is within eraser radius
               for (const point of shape.BufferStroke) {
@@ -550,6 +609,9 @@ export class Game {
                 }
               }
             }
+          } catch (error) {
+            console.log("caught in the shape try block, error is " + error);
+          }
             return true; // Keep this shape
           });
 
