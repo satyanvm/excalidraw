@@ -2,6 +2,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import jwt from "jsonwebtoken";
 const wss = new WebSocketServer({ port: 8080 });
 import { prismaClient } from "db/client";
+import { JWT_SECRET } from "@repo/backend-common";
 
 interface User {
     ws: WebSocket;
@@ -18,8 +19,8 @@ function checkUser(token: string): string | null {
     }
 
     try {
-        const decoded = jwt.verify(token, "123123");
-        if (typeof decoded == "string") {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        if (typeof decoded === "string") {
             return null;
         }
         if (!decoded || !decoded.userId) {
