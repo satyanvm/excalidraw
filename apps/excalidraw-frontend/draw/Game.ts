@@ -155,7 +155,10 @@ export class Game {
     );
 
     this.existingShapes.map((shape) => {
+      console.log("shape is " + shape);
       if (typeof shape === "object") {
+        console.log("came inside the typeof shape === object");
+        console.log("shape.type is " + shape.type);
         if (shape.type === "rect") {
           this.ctx.strokeStyle = "rgba(255, 255, 255)";
           this.ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
@@ -236,6 +239,13 @@ export class Game {
       }
     });
   }
+
+  // shouldErase(BufferStroke: any[]) {
+  //   // the BufferStroke in the argument are the points of the eraser trail
+    
+
+  // }
+  
   clearCanvas() {
     this.ctx.setTransform(this.scale, 0, 0, this.scale, this.panX, this.panY);
     this.ctx.clearRect(
@@ -255,7 +265,10 @@ export class Game {
     );
 
     this.existingShapes.map((shape) => {
+      console.log("shape is " + shape);
       if (typeof shape === "object") {
+        console.log("came inside the typeof shape === object");
+        console.log("shape.type is " + shape.type);
         if (shape.type === "rect") {
           this.ctx.strokeStyle = "rgba(255, 255, 255)";
           this.ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
@@ -342,6 +355,7 @@ export class Game {
   }
 
   mouseDownHandler = (e: any) => {
+
     if (this.selectedTool === "hand") {
       this.isPanning = true;
       this.lastMouseX = e.clientX;
@@ -359,16 +373,16 @@ export class Game {
       (this.lastY - this.panY) / this.scale,
     ]);
   };
+
   mouseUpHandler = (e: any) => {
+    // call forpanclearcanvas
+    this.clearCanvas();
     this.isPanning = false;
-    console.log(
-      "mouseup happened and here this.isPanning is " + this.isPanning,
-    );
     this.clicked = false;
     const width = (e.clientX - this.startX) / this.scale;
     const height = (e.clientY - this.startY) / this.scale;
-    const clientX = e.clientX;
-    const clientY = e.clientY;
+    // const clientX = e.clientX;
+    // const clientY = e.clientY;
     const selectedTool = this.selectedTool;
     if (this.isPan) {
       this.noPanAndDraw = true;
@@ -400,12 +414,13 @@ export class Game {
         BufferStroke: this.BufferStroke,
       };
     } 
-    if (!shape) {
-      console.log("returning because of no shape");
-      return;
-    }
+    // we are not returning because eraser is not a shape
+    // if (!shape) {
+    //   console.log("returning because of no shape");
+    //   return;
+    // }
 
-    this.existingShapes.push(shape);
+    this.existingShapes.push(shape? shape : {type: "eraser", startX: (this.startX - this.panX) / this.scale, startY: (this.startY - this.panY) / this.scale, clientX: (e.clientX - this.panX) / this.scale, clientY: (e.clientY - this.panY) / this.scale, BufferStroke: this.BufferStroke});
     this.lastX = e.offsetX;
     this.lastY = e.offsetY;
 
@@ -423,8 +438,8 @@ export class Game {
 
     const mouseX = e.clientX - this.canvas.offsetLeft;
     const mouseY = e.clientY - this.canvas.offsetTop;
-    const canvasMouseX = (mouseX - this.panX) / this.scale;
-    const canvasMouseY = (mouseY - this.panY) / this.scale;
+    // const canvasMouseX = (mouseX - this.panX) / this.scale;
+    // const canvasMouseY = (mouseY - this.panY) / this.scale;
 
     console.log("this.existingShapes is " + this.existingShapes);
 
@@ -522,6 +537,7 @@ export class Game {
           // first fetch the path of the existing shapes
           // first implementing only for pencils
           this.existingShapes = this.existingShapes.filter((shape) => {
+            console.log("shape is " + shape);
             if (shape.type === "pencil") {
               // Check if any point in the stroke is within eraser radius
               for (const point of shape.BufferStroke) {
@@ -536,6 +552,8 @@ export class Game {
             }
             return true; // Keep this shape
           });
+
+          // this.forPanClearCanvas();
         }
       }
     }

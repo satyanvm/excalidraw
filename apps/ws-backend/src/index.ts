@@ -54,21 +54,15 @@ wss.on("connection", function connection(ws, request) {
         ws: ws,
     });
 
-    // JWT already verified in checkUser, no need to verify again
-
     ws.on("message", async function message(data) {
         let parsedData;
         console.log(data);
         if (typeof data !== "string") {
-            console.log("in !string if");
             parsedData = JSON.parse(data.toString());
         } else {
-            console.log("in the else block");
             parsedData = JSON.parse(data);
-            console.log("the parsedData is " + parsedData.userId);
         }
 
-        console.log("parsedData is  ", parsedData);
         if (parsedData.type === "join_room") {
             const user = users.find((x) => x.ws === ws);
             user?.rooms.push(parsedData.roomId);
@@ -89,20 +83,10 @@ wss.on("connection", function connection(ws, request) {
 
         if (parsedData.type === "chat") {
             try {
-                -console.log(
-                    "after chat and parsedData.roomId is " + parsedData.roomId,
-                );
                 const roomId = parsedData.roomId;
-                console.log("the roomid is " + roomId);
                 const message = parsedData.message;
                 const themessage = JSON.stringify(JSON.stringify(message));
 
-                console.log(
-                    "the themessage which is being send to db is " + themessage,
-                );
-
-                console.log("the userid from chatcreate is " + userId);
-                console.log("the message which is being sent is " + themessage);
                 await prismaClient.chat.create({
                     data: {
                         roomId: roomId,

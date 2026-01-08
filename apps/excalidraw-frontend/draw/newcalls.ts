@@ -21,7 +21,10 @@ export function useGame(roomId: number, socket: WebSocket) {
       const allRect: any[] = [];
       const xCoords: number[] = [];
       const yCoords: number[] = [];
-
+      console.log("shapes are " + shapes);
+      console.log("JSON.parse(shapes) is " + JSON.parse(shapes));
+      console.log("JSON.parse(JSON.parse(shapes)) is " + JSON.parse(JSON.parse(shapes)));
+      console.log("JSON.parse(JSON.parse(JSON.parse(shapes))) is " + JSON.parse(JSON.parse(JSON.parse(shapes))));
       shapes.forEach((shape: any) => {
         let theshape = shape;
 
