@@ -1,3 +1,4 @@
+import { handleDeletion } from "./deleteShape";
 import { getExistingShapes } from "./http";
 
 type Tool = "circle" | "pencil" | "rect" | "hand" | "eraser";
@@ -459,6 +460,7 @@ export class Game {
                 const dy = point[1] - pointStroke[1];
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 if (distance < eraserRadius) {
+                  handleDeletion(this.roomId, theshape);
                   return false; // Remove this shape (eraser touched it)
                 }
               }
@@ -469,8 +471,8 @@ export class Game {
         }
         return true; // Keep this shape
       });
-      console.log("before calling of clearCanvas in mouseUpHandler");
-      this.clearCanvas();
+      // console.log("before calling of clearCanvas in mouseUpHandler");
+      // this.clearCanvas();
     }
     // we are not returning because eraser is not a shape
     // if (!shape) {
@@ -605,6 +607,7 @@ export class Game {
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
                 if (distance < eraserRadius) {
+                  handleDeletion(this.roomId);
                   return false; // Remove this shape (eraser touched it)
                 }
               }
@@ -614,8 +617,6 @@ export class Game {
           }
             return true; // Keep this shape
           });
-
-          // this.forPanClearCanvas();
         }
       }
     }

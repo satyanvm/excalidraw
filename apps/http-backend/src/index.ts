@@ -179,6 +179,34 @@ app.get("/roomchats/:roomId", async (req, res) => {
     }
 });
 
+// endpoint to delete a shape from the db
+app.post("deletechat/:slug", async (req, res) => {
+    const slug = req.params.slug;
+    const shape = req.body.shape;
+    const roomResponse = await prismaClient.room.findFirst({
+        where: {
+            slug: slug
+        }
+    });
+    const roomId = roomResponse?.id;
+    const response = await prismaClient.chat.delete({
+        //@ts-ignore
+        where: {
+            roomId: roomId,
+            id: shape.id
+        }
+    })
+    if(response){
+    res.json({
+        "message": "Deletion successfull"
+    })
+} else {
+    res.json({
+        "message": "Deletion unsuccessfull"
+    })
+}
+})
+
 //@ts-ignore
 app.get("/room/:slug", async (req, res) => {
     const slug = req.params.slug;
@@ -199,6 +227,19 @@ app.get("/room/:slug", async (req, res) => {
         res.status(500).json({ error: "Database error" });
     }
 });
+
+app.get("/room/:roomId", async(req, res) => {
+    const roomdId = Number(req.params.roomId);
+    const room = await prismaClient.room.findFirst({
+        where: {
+            id: roomdId
+        }
+    });
+    const slug = room?.slug;
+    res.json({
+        slug: slug
+    })
+})
 
 app.post("/createroom/:slug", async (req, res) => {
     const slug = req.params.slug;
