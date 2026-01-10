@@ -2,14 +2,15 @@ import axios from "axios";
 
 export async function handleDeletion(roomId: any, shape: any){
     try{
-        const slug = await axios.get(`http://localhost:3001/room/${roomId}`);
+        const res = await axios.get(`http://localhost:3001/room/id/${roomId}`);
+        const slug = res.data.slug;
     const response = await axios.post(`http://localhost:3001/deletechat/${slug}`, {
         shape: shape
     });
-    if(response){
-        console.log("Deletion successfull");
+    if(response.status === 200){
+        console.log("Deletion successful");
     } else {
-        console.log("Deletion unsuccessfull");
+        console.log("Deletion unsuccessful");
     }
     } catch(e){
         console.error(e);
