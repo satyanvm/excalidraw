@@ -21,10 +21,14 @@ export function useGame(roomId: number, socket: WebSocket) {
       const allRect: any[] = [];
       const xCoords: number[] = [];
       const yCoords: number[] = [];
-
+      console.log("shapes are " + shapes);
+      // console.log("JSON.parse(shapes) is " + JSON.parse(shapes));
+      // console.log("JSON.parse(JSON.parse(shapes)) is " + JSON.parse(JSON.parse(shapes)));
+      // console.log("JSON.parse(JSON.parse(JSON.parse(shapes))) is " + JSON.parse(JSON.parse(JSON.parse(shapes))));
       shapes.forEach((shape: any) => {
         let theshape = shape;
-
+        console.log("shape is " + shape);
+        console.log("typeof shape is " + typeof shape);
         if (typeof shape !== "object") {
           try {
             theshape = JSON.parse(JSON.parse(JSON.parse(shape)));
@@ -33,7 +37,7 @@ export function useGame(roomId: number, socket: WebSocket) {
             return;
           }
         }
-
+        try{
         if (theshape.type === "rect") {
           allRect.push(theshape);
 
@@ -57,6 +61,9 @@ export function useGame(roomId: number, socket: WebSocket) {
             }
           }
         }
+      } catch (error) {
+        console.log("caught in theshape try block, error is " + error);
+      }
       });
 
       setAllShapeXRect(xCoords);
