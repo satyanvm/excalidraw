@@ -15,11 +15,11 @@
     "jsonwebtoken": "^9.0.2",
     "ws": "^8.18.2",
     "@repo/db": "workspace:*",
+    "@repo/backend-common": "workspace:*",
     "db": "workspace:*"
   },
   "devDependencies": {
-    "@repo/typescript-config": "workspace:*",
-    "@repo/backend-common": "workspace:*"
+    "@repo/typescript-config": "workspace:*"
   },
   "keywords": [],
   "author": "",
