@@ -21,7 +21,7 @@ function Room() {
         setLoading(true);
         setError("");
         try {
-            const response = await axios.get(`http://localhost:3001/room/${slug}`);
+            const response = await axios.get(`http://localhost:3001/room/slug/${slug}`);
             console.log ("response is", response);
             console.log("Response: is", response.data);
             const roomId = response.data.id;

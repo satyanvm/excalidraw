@@ -181,7 +181,7 @@ app.get("/roomchats/:roomId", async (req, res) => {
 });
 
 // endpoint to delete a shape from the db
-app.post("deletechat/:slug", async (req, res) => {
+app.post("/deletechat/:slug", async (req, res) => {
     const slug = req.params.slug;
     const shape = req.body.shape;
     const roomResponse = await prismaClient.room.findFirst({
@@ -209,7 +209,7 @@ app.post("deletechat/:slug", async (req, res) => {
 })
 
 //@ts-ignore
-app.get("/room/:slug", async (req, res) => {
+app.get("/room/slug/:slug", async (req, res) => {
     const slug = req.params.slug;
     try {
         const room = await prismaClient.room.findFirst({
@@ -229,11 +229,11 @@ app.get("/room/:slug", async (req, res) => {
     }
 });
 
-app.get("/room/:roomId", async(req, res) => {
-    const roomdId = Number(req.params.roomId);
+app.get("/room/id/:roomId", async(req, res) => {
+    const roomId = Number(req.params.roomId);
     const room = await prismaClient.room.findFirst({
         where: {
-            id: roomdId
+            id: roomId
         }
     });
     const slug = room?.slug;

@@ -400,8 +400,7 @@ export class Game {
   };
 
   mouseUpHandler = (e: any) => {
-    // call forpanclearcanvas
-    this.clearCanvas();
+    // this.clearCanvas();
     this.isPanning = false;
     this.clicked = false;
     const width = (e.clientX - this.startX) / this.scale;
