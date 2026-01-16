@@ -31,7 +31,6 @@ app.post("/signup", async (req, res) => {
             userId: user.id,
         });
     } catch (e) {
-        console.log("the error is " + e);
         res.json({
             message: "either the email already exists or the db is down",
         });
@@ -75,7 +74,6 @@ app.post("/signin", async (req, res) => {
             token,
         });
     } catch (e) {
-        console.log(e);
         res.json({
             message: "some error signing in, error is " + e,
             error: e as Error,
@@ -101,7 +99,6 @@ app.post("/room", middleware, async (req, res) => {
             roomId: room.id,
         });
     } catch (e) {
-        console.log("The error is " + e);
     }
 });
 
@@ -124,28 +121,22 @@ app.get("/chats/:slug", async (req, res) => {
         try {
             if (typeof chat.message === "string") {
                 messages.push(chat.message);
-                console.log("inside if string and chat.message is " + chat.message);
             } else {
                 //@ts-ignore
                 messages.push(...chat.message);
-                console.log(
-                    "i passed chat.message to messages.push which is " + chat.message,
-                );
             }
         } catch (e) {
-            console.log("the error here is " + e);
             res.json({
                 message: "some issue ",
             });
         }
     }
-    console.log(messages);
     res.json({
         messages,
     });
 });
 
-app.post("/savemessage", (req, res) => {
+app.post("/savemessage", (req: Request, res: Response) => {
     const chat = req.body.chat;
     const slug = req.body.slug;
 
@@ -161,7 +152,6 @@ app.post("/savemessage", (req, res) => {
 app.get("/roomchats/:roomId", async (req, res) => {
     try {
         const roomId = Number(req.params.roomId);
-        console.log(req.params.roomId);
 
         const room = await prismaClient.room.findFirst({
             where: {
@@ -173,7 +163,6 @@ app.get("/roomchats/:roomId", async (req, res) => {
             slug: room?.slug,
         });
     } catch (e) {
-        console.log("error in /id endpoint is " + e);
         res.json({
             messages: "Issue in fetching",
         });
@@ -181,31 +170,123 @@ app.get("/roomchats/:roomId", async (req, res) => {
 });
 
 // endpoint to delete a shape from the db
-app.post("/deletechat/:slug", async (req, res) => {
-    const slug = req.params.slug;
-    const shape = req.body.shape;
-    const roomResponse = await prismaClient.room.findFirst({
-        where: {
-            slug: slug
+//@ts-ignore
+app.post("/deletechat/:slug", async (req: Request, res: Response) => {
+    try {
+        const slug = req.params.slug;
+        const type = req.body.type;
+        const startX = req.body.startX;
+        const startY = req.body.startY;
+        const endX = req.body.endX;
+        const endY = req.body.endY;
+        const roomResponse = await prismaClient.room.findFirst({
+            where: {
+                slug: slug
+            }
+        });
+        const roomId = roomResponse?.id;
+        
+        if (!roomId) {
+            return res.status(404).json({
+                message: "Room not found"
+            });
         }
-    });
-    const roomId = roomResponse?.id;
-    const response = await prismaClient.chat.delete({
-        //@ts-ignore
-        where: {
-            roomId: roomId,
-            id: shape.id
+        
+        const shape = await prismaClient.chat.findFirst({
+            where: {
+                roomId: roomId,
+                type: type,
+                startX: startX,
+                startY: startY,
+                endX: endX,
+                endY: endY
+            }
+        });
+        
+        if (!shape) {
+            return res.status(404).json({
+                message: "Shape not found"
+            });
         }
-    })
-    if(response){
-    res.json({
-        "message": "Deletion successfull"
-    })
-} else {
-    res.json({
-        "message": "Deletion unsuccessfull"
-    })
-}
+        
+        const response = await prismaClient.chat.delete({
+            //@ts-ignore
+            where: {
+                roomId: roomId,
+                id: shape.id
+            }
+        });
+        
+        if(response){
+            res.json({
+                "message": "Deletion successfull"
+            });
+        } else {
+            res.json({
+                "message": "Deletion unsuccessfull"
+            });
+        }
+    } catch (e) {
+        res.status(500).json({
+            message: "Error deleting shape",
+            error: e
+        });
+    }
+})
+
+// endpoint to delete a shape by properties (for client-side calls)
+//@ts-ignore
+app.post("/deleteshape/:roomId", async (req: Request, res: Response) => {
+    try {
+        const roomId = Number(req.params.roomId);
+        const { type, startX, startY, endX, endY } = req.body;
+        
+        // Find the room to get the slug
+        const room = await prismaClient.room.findFirst({
+            where: {
+                id: roomId
+            }
+        });
+        
+        if (!room) {
+            return res.status(404).json({
+                message: "Room not found"
+            });
+        }
+
+        const chat = await prismaClient.chat.findFirst({
+            where: {
+                roomId: roomId,
+                type: type,
+                startX: startX,
+                startY: startY,
+                endX: endX,
+                endY: endY
+            }
+        });
+        
+        if (!chat) {
+            return res.status(404).json({
+                message: "Shape not found"
+            });
+        }
+        
+        // Delete the chat
+        await prismaClient.chat.delete({
+            where: {
+                id: chat.id
+            }
+        });
+        
+        res.json({
+            message: "Deletion successful"
+        });
+    } catch (e) {
+        res.status(500).json({
+            message: "Deletion unsuccessful",
+            error: e
+        });
+    }
 })
 
 //@ts-ignore
@@ -224,7 +305,6 @@ app.get("/room/slug/:slug", async (req, res) => {
             id: room?.id,
         });
     } catch (e) {
-        console.log("Error in /room/:slug:", e);
         res.status(500).json({ error: "Database error" });
     }
 });
@@ -255,7 +335,6 @@ app.post("/createroom/:slug", async (req, res) => {
             roomId: room.id,
         })
     }catch(e){
-        console.log("error in /createroom/:slug endpoint is " + e);
         res.json({
             error: e as Error,
             //@ts-ignore

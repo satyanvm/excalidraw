@@ -9,8 +9,6 @@ export function RoomCanvas({ roomId }: { roomId: string }) {
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
 
-    console.log("the roomId in canvas/id is", roomId);
-
     useEffect(() => {
         // Get token inside useEffect to ensure we're on client
         const token = localStorage.getItem("token");
@@ -24,7 +22,6 @@ export function RoomCanvas({ roomId }: { roomId: string }) {
         const ws = new WebSocket(`ws://localhost:8080?token=${token}`);
 
         ws.onopen = () => {
-            console.log("WebSocket connected");
             setSocket(ws);
             ws.send(
                 JSON.stringify({
@@ -35,12 +32,10 @@ export function RoomCanvas({ roomId }: { roomId: string }) {
         };
 
         ws.onerror = (err) => {
-            console.error("WebSocket error:", err);
             setError("Failed to connect to server");
         };
 
         ws.onclose = () => {
-            console.log("WebSocket closed");
         };
 
         return () => {

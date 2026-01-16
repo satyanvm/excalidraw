@@ -22,8 +22,6 @@ function Room() {
         setError("");
         try {
             const response = await axios.get(`http://localhost:3001/room/slug/${slug}`);
-            console.log ("response is", response);
-            console.log("Response: is", response.data);
             const roomId = response.data.id;
 
             if (!roomId) {
@@ -46,18 +44,15 @@ function Room() {
             setError("Please enter a room slug");
             return;
         }
-        console.log("slugCreate check is passed, slugCreate is", slugCreate);
         setLoadingCreate(true);
         setError("");
         // get token from localStorage and decode it for userId, will create a middleware for this in future
         const token = localStorage.getItem("token");
         if(!token){
-            console.log("no token found");
             setError("Please login to create a room");
             setLoadingCreate(false);
             return;
         }
-        console.log("token check is passed, token is", token);
         // Decode JWT token to get userId (verification happens on backend)
         // Note: jwt.decode() doesn't verify the signature - that's done on the server
         const decoded = jwtDecode<{ userId?: string }>(token);
@@ -67,12 +62,10 @@ function Room() {
             return;
         }
         const userId = decoded.userId;
-        console.log("userId is", userId);
         try { 
             const response = await axios.post(`http://localhost:3001/createroom/${slugCreate}`, {
                 adminId: userId,
             }) 
-            console.log("Response:", response.data);
             const roomId = response.data.roomId;
 
             // Navigate to the canvas after getting the room slug

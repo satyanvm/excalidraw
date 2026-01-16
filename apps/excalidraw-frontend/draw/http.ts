@@ -8,7 +8,6 @@ export async function getExistingShapes(roomId: Number) {
     const slug = slugResponse.data.slug;
 
     if (!slug) {
-      console.log("No slug found for room:", roomId);
       return [];
     }
 

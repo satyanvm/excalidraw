@@ -25,6 +25,7 @@
     "@types/react-dom": "^19",
     "tailwindcss": "^4.1.8",
     "typescript": "^5",
-    "@repo/backend-common": "workspace:*"
+    "@repo/backend-common": "workspace:*",
+    "db": "workspace:*"
   }
 }

@@ -21,14 +21,8 @@ export function useGame(roomId: number, socket: WebSocket) {
       const allRect: any[] = [];
       const xCoords: number[] = [];
       const yCoords: number[] = [];
-      console.log("shapes are " + shapes);
-      // console.log("JSON.parse(shapes) is " + JSON.parse(shapes));
-      // console.log("JSON.parse(JSON.parse(shapes)) is " + JSON.parse(JSON.parse(shapes)));
-      // console.log("JSON.parse(JSON.parse(JSON.parse(shapes))) is " + JSON.parse(JSON.parse(JSON.parse(shapes))));
       shapes.forEach((shape: any) => {
         let theshape = shape;
-        console.log("shape is " + shape);
-        console.log("typeof shape is " + typeof shape);
         if (typeof shape !== "object") {
           try {
             theshape = JSON.parse(JSON.parse(JSON.parse(shape)));
@@ -62,15 +56,11 @@ export function useGame(roomId: number, socket: WebSocket) {
           }
         }
       } catch (error) {
-        console.log("caught in theshape try block, error is " + error);
       }
       });
 
       setAllShapeXRect(xCoords);
       setAllShapeYRect(yCoords);
-
-      console.log("Processed xCoords:", xCoords);
-      console.log("Processed yCoords:", yCoords);
     }
 
     fetchShapes();
@@ -78,7 +68,6 @@ export function useGame(roomId: number, socket: WebSocket) {
 
   useEffect(() => {
     if (canvasRef.current) {
-      console.log("Creating Game instance...");
       const g = new Game(
         canvasRef.current,
         roomId,
@@ -90,7 +79,6 @@ export function useGame(roomId: number, socket: WebSocket) {
       setGame(g);
 
       return () => {
-        console.log("Destroying Game instance...");
         g.destroy();
       };
     }
@@ -105,7 +93,6 @@ export function useGame(roomId: number, socket: WebSocket) {
 
   useEffect(() => {
     if (game) {
-      console.log("Setting tool in Game:", selectedTool);
       game.setTool(selectedTool);
     }
   }, [selectedTool, game]);

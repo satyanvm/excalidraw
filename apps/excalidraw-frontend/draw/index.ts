@@ -12,7 +12,6 @@ export async function initDraw(canvas: any, roomId: string, socket: WebSocket) {
   clearCanvas(existingShapes, canvas, ctx);
 
   if (!ctx) {
-    console.log("returning because of no ctx");
     return;
   }
 
@@ -22,7 +21,6 @@ export async function initDraw(canvas: any, roomId: string, socket: WebSocket) {
     const themessage = JSON.parse(JSON.parse(JSON.parse(event.data).message));
 
     if (hehe.type == "chat") {
-      console.log("inside message.type = chat");
       existingShapes.push(themessage);
       clearCanvas(existingShapes, canvas, ctx);
     }
@@ -53,10 +51,6 @@ export async function initDraw(canvas: any, roomId: string, socket: WebSocket) {
 
   canvas.addEventListener("mousemove", (e: any) => {
     if (clicked) {
-      console.log("clicked is " + clicked);
-      //@ts-ignore
-      console.log("window.selectedTool is " + window.selectedTool);
-
       //@ts-ignore
       if (window.selectedTool === "rect") {
         const width = e.clientX - startX;
@@ -145,7 +139,6 @@ export async function initDraw(canvas: any, roomId: string, socket: WebSocket) {
 
     existingShapes.push(shape);
 
-    console.log("the shape being pushed here is ", shape);
     socket.send(
       JSON.stringify({
         type: "chat",
@@ -201,8 +194,6 @@ function clearCanvas(
       }
     } else {
       const shape = JSON.parse(JSON.parse(JSON.parse(shapestr)));
-      console.log("typeof shape is", typeof shape);
-      console.log("shape is ", shape);
       if (shape.type === "rect") {
         ctx.strokeStyle = "rgba(255,255,255)";
         ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);

@@ -45,8 +45,6 @@ export function TopBar({
     activated = "hand";
   } else if (selectedTool === "eraser") {
     activated = "eraser";
-  } else {
-    console.log("selectedTool is none of those");
   }
 
   return (
@@ -84,8 +82,6 @@ export function TopBar({
         icon={<Pencil />}
         onClick={() => {
           setSelectedTool("pencil");
-
-          console.log("i have done window.selectedTool to be pencil");
         }}
         activated={activated === "pencil"}
       />
@@ -95,7 +91,6 @@ export function TopBar({
         setSelectedTool={setSelectedTool}
         icon={<Hand />}
         onClick={() => {
-          console.log("selected hand");
           setSelectedTool("hand");
         }}
         activated={activated === "hand"}

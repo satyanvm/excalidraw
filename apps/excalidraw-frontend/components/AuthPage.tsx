@@ -24,13 +24,10 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
                     password,
                 });
                 if(!response){
-                    console.log("no response from signin endpoint");
                     setError("Something went wrong");
                     return;
                 }
-                console.log("response is ", response);
                 if(!response.data.token){
-                    console.log("response is there but response.data.token is not there");
                     setError("Something went wrong");
                     return;
                 }
