@@ -82,6 +82,10 @@ wss.on("connection", function connection(ws, request) {
                 const roomId = parsedData.roomId;
                 const message = parsedData.message;
                  if(message.type === "pencil"){
+                    if (!message.BufferStroke || message.BufferStroke.length === 0) {
+                        console.error("Invalid pencil message: BufferStroke is empty or missing");
+                        return;
+                    }
                     message.endX = message.BufferStroke[message.BufferStroke.length - 1][0];
                     message.endY = message.BufferStroke[message.BufferStroke.length - 1][1];
                 }

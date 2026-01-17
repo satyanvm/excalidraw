@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export async function handleDeletion(type: string, startX: number, startY: number, endX: number, endY: number){
+export async function handleDeletion(roomId: any, type: string, startX: number, startY: number, endX: number, endY: number){
     try{
         const slugResponse = await axios.get(`http://localhost:3001/room/id/${roomId}`);
         const slug = slugResponse.data.slug;

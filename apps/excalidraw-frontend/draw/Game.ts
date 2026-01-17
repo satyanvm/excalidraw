@@ -469,7 +469,7 @@ export class Game {
                 const dy = point[1] - pointStroke[1];
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 if (distance < eraserRadius) { 
-                  handleDeletion(theshapeObject.type, theshapeObject.startX, theshapeObject.startY, theshapeObject.endX, theshapeObject.endY);
+                  handleDeletion(this.roomId, theshapeObject.type, theshapeObject.startX, theshapeObject.startY, theshapeObject.endX, theshapeObject.endY);
                   return false; // Remove this shape (eraser touched it)
                 }
               }
