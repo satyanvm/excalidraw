@@ -29,7 +29,7 @@ model Room{
   createAt      DateTime    @default(now())
   adminId       String      
   admin         user         @relation(fields: [adminId], references: [id])   
-  chats          Chat[]       
+  chats          Chat[]
 }  
 
 model Chat{
@@ -38,7 +38,12 @@ model Chat{
   userId        String     
   room          Room        @relation(fields: [roomId], references: [id])
   user          user        @relation(fields: [userId], references: [id])
-  message      String 
+  startX        Int?
+  endX          Int?
+  startY        Int?
+  endY          Int?
+  type          String?
+  message       String 
 }
 
 

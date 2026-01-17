@@ -1,18 +1,22 @@
 import axios from "axios";
 
-export async function handleDeletion(roomId: any, shape: any){
+export async function handleDeletion(roomId: any, type: string, startX: number, startY: number, endX: number, endY: number){
     try{
-        const res = await axios.get(`http://localhost:3001/room/id/${roomId}`);
-        const slug = res.data.slug;
-    const response = await axios.post(`http://localhost:3001/deletechat/${slug}`, {
-        shape: shape
-    });
-    if(response.status === 200){
-        console.log("Deletion successful");
-    } else {
-        console.log("Deletion unsuccessful");
-    }
+        const slugResponse = await axios.get(`http://localhost:3001/room/id/${roomId}`);
+        const slug = slugResponse.data.slug;
+        const response = await axios.post(`http://localhost:3001/deletechat/${slug}`, {
+            type: type,
+            startX: startX,
+            startY: startY,
+            endX: endX,
+            endY: endY
+        });
+        if(response.status === 200){
+            console.log("Deletion successful");
+        } else {
+            console.log("Deletion unsuccessful");
+        }
     } catch(e){
-        console.error(e);
+        console.log("Error in deletion: " + e);
     }
 }
