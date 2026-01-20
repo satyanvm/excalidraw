@@ -3,7 +3,8 @@
 import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { jwtDecode } from "jwt-decode";
+import { getCurrentUserAction } from "../actions/auth";
+import { NavBar } from "@/components/NavBar";
 
 function Room() {
     const [slug, setSlug] = useState("");
@@ -16,7 +17,7 @@ function Room() {
     async function handleEnterRoom() {
         if (!slug) {
             setError("Please enter a room slug");
-            return; 
+            return;
         }
         setLoading(true);
         setError("");
@@ -29,57 +30,54 @@ function Room() {
                 return;
             }
 
-            // Navigate to the canvas after getting the room slug
             router.push(`/canvas/${roomId}`);
         } catch (err: any) {
             console.error("Error:", err);
             setError(err.response?.data?.error || "Room not found or server error");
         } finally {
             setLoading(false);
-        } 
+        }
     }
 
     async function handleCreateRoom(){
-              if (!slugCreate) {    
+        if (!slugCreate) {
             setError("Please enter a room slug");
             return;
         }
         setLoadingCreate(true);
         setError("");
-        // get token from localStorage and decode it for userId, will create a middleware for this in future
-        const token = localStorage.getItem("token");
-        if(!token){
-            setError("Please login to create a room");
-            setLoadingCreate(false);
-            return;
-        }
-        // Decode JWT token to get userId (verification happens on backend)
-        // Note: jwt.decode() doesn't verify the signature - that's done on the server
-        const decoded = jwtDecode<{ userId?: string }>(token);
-        if (!decoded || !decoded.userId) {
-            setError("Invalid token. Please login again.");
-            setLoadingCreate(false);
-            return;
-        }
-        const userId = decoded.userId;
-        try { 
-            const response = await axios.post(`http://localhost:3001/createroom/${slugCreate}`, {
-                adminId: userId,
-            }) 
-            const roomId = response.data.roomId;
+        try {
+            // Use server action to get current user
+            const result = await getCurrentUserAction();
+            
+            if (!result?.user) {
+                setError("Please login to create a room");
+                setLoadingCreate(false);
+                return;
+            }
 
-            // Navigate to the canvas after getting the room slug
+            const response = await axios.post(
+                `http://localhost:3001/createroom/${slugCreate}`, 
+                { adminId: result.user.id },
+                {
+                    withCredentials: true,
+                }
+            );
+
+            const roomId = response.data.roomId;
             router.push(`/canvas/${roomId}`);
         } catch (err: any) {
             console.error("Error:", err);
             setError(err.response?.data?.error || "Room not found or server error");
         } finally {
             setLoadingCreate(false);
-        } 
+        }
     }
 
     return (
-        <div className="min-h-screen items-center justify-center ml-115 mt-40">
+        <div className="min-h-screen bg-black">
+            <NavBar />
+            <div className="items-center justify-center ml-115 mt-40 pt-8">
             <div className="bg-zinc-900 p-8 rounded-xl w-full max-w-md">
                 <h1 className="text-2xl font-bold text-white mb-6 text-center">Join a Room</h1>
 
@@ -101,8 +99,8 @@ function Room() {
                     {loading ? "Joining..." : "Enter Room"}
                 </button>
             </div>
-        <br/>
-                        <div className="bg-zinc-900 p-8 rounded-xl w-full max-w-md">
+            <br/>
+            <div className="bg-zinc-900 p-8 rounded-xl w-full max-w-md">
                 <h1 className="text-2xl font-bold text-white mb-6 text-center">Create a Room</h1>
 
                 <input
@@ -123,9 +121,8 @@ function Room() {
                     {loadingCreate ? "Creating..." : "Create Room"}
                 </button>
             </div>
+            </div>
         </div>
-
-        
     );
 }
 

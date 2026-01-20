@@ -12,6 +12,10 @@
     "./config": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./lib/auth": {
+      "types": "./dist/lib/auth.d.ts",
+      "default": "./dist/lib/auth.js"
     }
   },
   "devDependencies": {
@@ -21,6 +25,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/node": "^22.15.3"
+    "@types/node": "^22.15.3",
+    "better-auth": "^1.4.15",
+    "db": "workspace:*"
   }
 }
