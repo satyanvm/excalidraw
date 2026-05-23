@@ -15,7 +15,10 @@
     "@types/express": "^5.0.2",
     "cors": "^2.8.5",
     "express": "^5.1.0",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "@repo/backend-common": "workspace:*",
+    "@repo/common": "workspace:*",
+    "better-auth": "^1.4.15"
   },
   "devDependencies": {
     "@repo/backend-common": "workspace:*",

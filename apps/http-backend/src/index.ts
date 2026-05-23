@@ -9,9 +9,12 @@ import { JWT_SECRET } from "@repo/backend-common/config";
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:3000", // Frontend URL
+    credentials: true, // Allow cookies/credentials
+}));
 // add zod validation
-
+/*
 app.post("/signup", async (req, res) => {
     const data = CreateUserSchema.safeParse(req.body);
 
@@ -80,7 +83,7 @@ app.post("/signin", async (req, res) => {
         });
     }
 });
-
+*/
 app.post("/room", middleware, async (req, res) => {
     const slug = req.body.slug;
     //@ts-ignore
@@ -99,6 +102,10 @@ app.post("/room", middleware, async (req, res) => {
             roomId: room.id,
         });
     } catch (e) {
+        res.json({
+            message: "error is " + e,
+            error: e as Error,
+        });
     }
 });
 

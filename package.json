@@ -23,6 +23,7 @@
   "dependencies": {
     "@prisma/client": "6.8.2",
     "@types/dotenv": "^8.2.3",
+    "better-auth": "^1.4.15",
     "dotenv": "^17.2.3",
     "jwt-decode": "^4.0.0"
   }

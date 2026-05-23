@@ -21,7 +21,7 @@ export function Canvas({
   const { canvasRef, selectedTool, setSelectedTool } = useGame(roomId, socket);
 
   return (
-    <div className="h-screen overflow-hidden bg-white">
+    <div className="h-[calc(100vh-64px)] overflow-hidden bg-white">
       <canvas ref={canvasRef}></canvas>
       <TopBar setSelectedTool={setSelectedTool} selectedTool={selectedTool} />
     </div>

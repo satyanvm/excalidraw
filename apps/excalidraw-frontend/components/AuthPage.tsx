@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 
 export function AuthPage({ isSignin }: { isSignin: boolean }) {
@@ -18,41 +17,59 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
         setError("");
 
         try {
-            if (isSignin) {
-                const response = await axios.post("http://localhost:3001/signin", {
-                    email,
-                    password,
-                });
-                if(!response){
-                    setError("Something went wrong");
-                    return;
+            // Better-auth endpoints use slashes: /sign-in/email
+            // With route at /api/auth/[...all] and basePath "/api/auth"
+            // Full endpoint is: /api/auth/sign-in/email
+            const endpoint = isSignin 
+                ? "/api/auth/sign-in/email" 
+                : "/api/auth/sign-up/email";
+            const body = isSignin 
+                ? { email, password }
+                : { email, password, name };
+
+            console.log("Calling endpoint:", endpoint);
+            
+            const response = await fetch(endpoint, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify(body),
+            });
+
+            console.log("Response status:", response.status);
+            console.log("Response headers:", Object.fromEntries(response.headers.entries()));
+
+            if (!response.ok) {
+                let errorMsg = "Something went wrong";
+                try {
+                    const errorData = await response.json();
+                    errorMsg = errorData.error?.message || errorData.error || errorMsg;
+                } catch (e) {
+                    const text = await response.text();
+                    console.error("Response body (not JSON):", text);
+                    errorMsg = `Request failed: ${response.status} ${response.statusText}`;
                 }
-                if(!response.data.token){
-                    setError("Something went wrong");
-                    return;
-                }
-                localStorage.setItem("token", response.data.token);
-                router.push("/room");
-            } else {
-                const response = await axios.post("http://localhost:3001/signup", {
-                    email,
-                    password,
-                    name,
-                });
-                // Auto sign in after signup
-                const signinResponse = await axios.post(
-                    "http://localhost:3001/signin",
-                    {
-                        email,
-                        password,
-                    },
-                );
-                localStorage.setItem("token", signinResponse.data.token);
-                router.push("/signin");
+                setError(errorMsg);
+                setLoading(false);
+                return;
             }
+
+            const data = await response.json();
+            console.log("Response data:", data);
+
+            if (!data.user) {
+                const errorMsg = data.error?.message || data.error || (isSignin ? "Invalid email or password" : "Failed to sign up");
+                setError(errorMsg);
+                setLoading(false);
+                return;
+            }
+
+            // Success - redirect to room
+            router.push("/room");
         } catch (err: any) {
-            setError(err.response?.data?.message || "Something went wrong");
-        } finally {
+            setError(err.message || "Something went wrong");
             setLoading(false);
         }
     };

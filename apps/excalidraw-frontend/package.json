@@ -12,6 +12,7 @@
     "@repo/ui": "workspace:*",
     "@types/axios": "^0.14.4",
     "axios": "^1.9.0",
+    "better-auth": "^1.4.15",
     "lucide-react": "^0.513.0",
     "next": "15.3.3",
     "postcss": "^8.5.4",
